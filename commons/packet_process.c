@@ -30,8 +30,10 @@ void processPacket(int socket, payloadBuf *packet) {
         DEBUG(("\nIn processpacket. Packet type : %0x\n", packetType));			
 	switch(packetType) {
 		case MSG_HEARTBEAT :
-				//Not implemented yet.
-		break;
+                     pthread_mutex_lock(&timestamp_mutex);
+                     
+                     pthread_mutex_unlock(&timestamp_mutex); 
+                     break;
 		
 		case MSG_FILE_TRANSFER :
                      ftpBuf = (fileTransferPayload *)(packet->payload);				
