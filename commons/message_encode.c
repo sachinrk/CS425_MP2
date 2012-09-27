@@ -8,6 +8,57 @@
 #define MAX_BUFFER_SIZE 1000                       //Maximum application payload we support as of now is 1000 bytes. 
 #define MAX_PAYLOAD_SIZE 1024
 
+/*Data structure used for marshalling */
+int marshalInfo[NUM_OF_PAYLOADS][MAX_ELEMENTS_PER_PAYLOAD][2] = 
+{ {
+      {(int)(&(((heartbeatPayload*)0)->heartbeatTimeStamp)), sizeof(((heartbeatPayload*)0)->heartbeatTimeStamp)} ,
+      {0,0}
+  },/*HEARTBEAT PAYLOAD*/
+  {
+      {0,0},
+  }, /*ADD DELETE NODE PAYLOAD*/
+  {
+      {(int)(&(((heartbeatPayload*)0)->heartbeatTimeStamp)), sizeof(((addNodeRequest*)0)->timestamp) },
+      {0,0 } 
+  }/* ADD NODE REQUEST*/
+};
+
+
+/************************************************************
+** This is the message marshalling function. 
+** It marshals the data as per the type.
+** 
+** Arguments:
+** msgType  : Message type as defined in message_type.h
+** payload : Payload from application layer
+** 
+** Return Type: void
+** Returns Marshalled data in the payload
+**************************************************************/
+
+void perform_marshalling(messageType msgType, char *payload) 
+{
+   int i=0;
+   uint32_t val32;
+   uint16_t val16;
+   while(marshalInfo[msgType][i][1] != 0 ) {
+      switch(marshalInfo[msgType][i][1]) {
+           case 2 :
+                val16 = *((uint16_t *)(payload + marshalInfo[msgType][i][0]));
+                *((uint16_t *)(payload + marshalInfo[msgType][i][0])) = htons(val16);
+                break;
+           case 4 :
+                val32 = *((uint32_t *)(payload + marshalInfo[msgType][i][0]));           
+                *((uint32_t *)(payload + marshalInfo[msgType][i][0])) = htonl(val32);
+                break;
+           default :
+               printf("\nBreaking\n");
+               break;
+                    
+       }
+       i++;
+   } 
+}
 /************************************************************
 ** This is the message sending function. 
 ** It populates the relevant fields of the payload and sends.
@@ -18,6 +69,7 @@
 ** payload : Payload from application layer
 ** length  : Length of application payload
 **************************************************************/
+
 
 int sendPayload(int socket, messageType msgType, char* payload, uint16_t length) {
 
@@ -35,6 +87,7 @@ int sendPayload(int socket, messageType msgType, char* payload, uint16_t length)
     }
     buf->type =  htons(type);
     buf->length = htons(length + sizeof(payloadBuf));
+    perform_marshalling(msgType, payload);
     memcpy(buf->payload, payload, length);
     DEBUG(("\n Printing below\n"));
     puts(payload);
