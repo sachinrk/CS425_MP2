@@ -83,3 +83,23 @@ int remove_from_list(struct Head_Node **head, char IP[16]) {
 		return 0;
 	}
 }
+
+/*********************************************************
+** This is the function used to delete all nodes. 
+** 
+** 
+** 
+** Arguments:
+** None.
+***********************************************************/
+
+RC_t delete_all_nodes(struct Head_Node *head)
+{
+     struct Node *tmp = head;
+     struct tmp1;
+     while(tmp && tmp != head) {
+         tmp1 = tmp->next;
+         free(tmp);
+         tmp1 = tmp;
+     }    
+}
