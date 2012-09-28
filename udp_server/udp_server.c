@@ -1,2 +1,143 @@
 #include"udp_server.h"
 
+//This is expected to send and receive heartbeats
+
+#define MASTER_IP "127.0.0.1"
+#define MASTER_PORT 1101
+
+void* heartbeat_send(void* t);
+void* heartbeat_receive(void* t);
+
+int form_topology();
+
+struct Head_Node *server_topology;
+int topology_version;
+pthread_mutex_t top_mutex;
+
+int main() {
+	pthread_t send_thread, receive_thread;
+	server_topology = NULL;	
+	topology_version = 0;
+
+	//Create sending and receiving threads
+
+	//First talk to the master and get the topology info.
+	
+	if(form_topology() == 0) {
+		
+
+		pthread_create(&send_thread, NULL, heartbeat_send, (void*)0);
+		pthread_create(&receive_thread, NULL, heartbeat_receive, (void*)0);
+		
+		pthread_join(send_thread);
+		pthread_join(receive_thread);
+	
+	}
+		
+	return 0;
+}
+
+RC_t form_topology() {	
+	struct sockaddr_in master;
+	int mSocket;
+
+	if((mSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
+		printf("Unable to create socket. Dying...\n");
+		exit(0);
+	}
+	
+	memset(&master, 0, sizeof(master));
+	master.sin_family 	= AF_INET;
+	master.sin_addr.s_addr 	= inet_addr(MASTER_IP);
+	master.sin_port		= htons(MASTER_PORT);
+	
+	if((connect(mSocket, (struct sockaddr *)&master, sizeof(master))) < 0) {
+		printf("Unable to connect with the Master. Dying...\n");
+	}
+	
+	//Tell the master I want to join the topology
+	
+	//process the incoming packet
+	
+	//By this time, our topology is formed and is present in the server_topology pointer
+	//Any changes in the topology will cause a change in the version number of the topology
+	
+	return RC_SUCCESS;
+}
+
+void heartbeat_send(void* t) {
+	//I need to have access to the topology
+	//I need to select the person I am supposed to send the heartbeats to
+	//I need to send the heartbeat
+
+	int my_version = 0;
+	struct Node* sendToNode = NULL;
+	int sendToSocket;
+	struct sockaddr_in sendToAddr;
+	
+	sendToSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);		
+
+	
+	while(1) {
+		//if topology has changed, it might be that I need to now send to some other node.
+		
+		if( my_version < topology_version ) {
+			my_version = topology_version;
+			if( (sendToNode == NULL) || strcmp(sendToNode->IP, server_topology->node->next->IP) ) {
+				//I need to send to a new node now.
+				if(sendToNode != NULL) 
+					free(sendToNode);
+				
+				sendToNode = init_node(server_topology->node->next->IP);
+				memset((char*)sendToAddr, 0, sizeof(sendToAddr));
+				sendToAddr.sin_family 		= AF_INET;
+				sendToAddr.sin_port   		= htons(HEARTBEAT_SEND_PORT);
+				sendToAddr.sin_addr.s_addr	= inet_addr(sendToNode->IP);
+			}		
+		}
+		
+		//send the heartbeat from here every 400 msec
+		usleep(400 * 1000); 	
+	}
+	
+}
+
+void heartbeat_receive(void* t) {
+
+	//I need to have access to the topology
+	//I am expecting heartbeat from someone
+	//I wait for sometime to check if I received heartbeat
+	//If I don't get what I want, I am supposed to tell everyone
+	
+	int my_version = 0;
+	struct Node* recvFromNode = NULL;
+	int recvFromSocket;
+	struct sockaddr_in recvFromAddr, myAddr;
+	
+	recvFromSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);		
+	memset((char*)recvFromAddr, 0, sizeof(recvFromAddr));
+	myAddr.sin_family	= AF_INET;
+	myAddr.sin_port  	= htons(HEARTBEAT_RECV_PORT);
+	myAddr.sin_addr.s_addr	= htnl(INADDR_ANY);
+	
+	while(1) {
+		//I may have to start receiving from a new node because... 
+		//1) it was just added to the topology as my predecessor
+		//2) my predecessor went down and is not communicating. 
+		
+		if( my_version < topology_version ) {
+			my_version = topology_version;
+			if( (recvFromNode == NULL) || strcmp(recvFromNode->IP, server_topology->node->prev->IP) ) {
+				//I need to recv from a new node now.
+				if(recvFromNode != NULL) 
+					free(recvFromNode);
+				
+				recvFromNode = init_node(server_topology->node->prev->IP);
+			}
+		}
+		
+		//	
+		
+		//send the heartbeat from here every 400 msec
+		usleep(400 * 1000); 	
+}
