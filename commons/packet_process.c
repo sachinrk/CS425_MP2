@@ -28,14 +28,16 @@ void processPacket(int socket, payloadBuf *packet) {
 	packetLength = packet->length;
 	packetType = packet->type;
         DEBUG(("\nIn processpacket. Packet type : %0x\n", packetType));			
-	switch(packetType) {
+	perform_marshalling(packetType, packet->payload);
+        switch(packetType) {
 		case MSG_HEARTBEAT :
-                     pthread_mutex_lock(&timestamp_mutex);
-                     
-                     pthread_mutex_unlock(&timestamp_mutex); 
+                     processHeartbeatPayload(packet->payload);                     
                      break;
 		
-		case MSG_FILE_TRANSFER :
+		case MSG_ADD_DELETE_NODE:
+                     processAddDeleteNodePayload(packet->payload);
+                     break;
+                case MSG_FILE_TRANSFER :
                      ftpBuf = (fileTransferPayload *)(packet->payload);				
                      DEBUG(("Status flag before = %0x\n", ftpBuf->statusFlag));
                      statusFlag = ntohs(ftpBuf->statusFlag);

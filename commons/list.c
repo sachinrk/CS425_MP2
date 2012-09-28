@@ -93,11 +93,11 @@ int remove_from_list(struct Head_Node **head, char IP[16]) {
 ** None.
 ***********************************************************/
 
-RC_t delete_all_nodes(struct Head_Node *head)
+RC_t delete_all_nodes(struct Head_Node **head)
 {
-     struct Node *tmp = head;
+     struct Node *tmp = (*head)->node;
      struct tmp1;
-     while(tmp && tmp != head) {
+     while(tmp && tmp != (*head)->node) {
          tmp1 = tmp->next;
          free(tmp);
          tmp1 = tmp;
