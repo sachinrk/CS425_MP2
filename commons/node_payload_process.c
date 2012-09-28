@@ -12,17 +12,16 @@ neigbourHeartbeat savedHeartbeat[NUM_HEARBEAT_NEIGHBOURS];
 ** ipAddr : IP Address.
 ***********************************************************/
 
-void processHeartbeat(char *ipAddr) 
+void processHeartbeatPayload(heartbeatPayload *payload) 
 {
     int i; 
+    pthread_mutex_lock(&timestamp_mutex);
     for (i = 0; i < NUM_HEARTBEAT_NEIGHBOURS; i++) {
-       pthread_mutex_lock(&timestamp_mutex);
-       if (!(strcpy(savedHeartbeat[i].ipAddr), ipAddr)) {
-           time(&savedHeartbeat[i].timeStamp);
+              if (!(strcpy(savedHeartbeat[i].ipAddr), payload->ipAddr)) {
+                  time(&savedHeartbeat[i].timeStamp);
        }
-       pthread_mutex_unlock(&timestamp_mutex); 
-   }
- 
+    }
+    pthread_mutex_unlock(&timestamp_mutex); 
 }
 
 
@@ -46,6 +45,7 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload)
            delete_all_nodes();
        }
        if (payload->flags & DELETE_PAYLOAD) {
+          remove_from_list(&server_topology, payload->ipAddr[i]);
           /* while (ptr != NULL && ptr->next != head) {
                if (!strcmp(ptr->ipAddr, payload->ipAddr[i])) { //Match found. Delete this node 
                    if (ptr == head) {
@@ -59,6 +59,7 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload)
                ptr = ptr->next;
            } */
        } else if (payload->flags & ADD_PAYLOAD) {
+           add_to_list(&server_topology, payload->ipAddr[i]);   
            /*tmp = (nodeData *)malloc(sizeof(nodeData));
            strcpy(nodeData->ipAddr, payload->ipAddr[i]);
            (head->prev)->next = tmp;
