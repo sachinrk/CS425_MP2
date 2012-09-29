@@ -7,7 +7,7 @@
 
 void* heartbeat_send(void* t);
 void* heartbeat_receive(void* t);
-
+int getMyIPAddrs(char[10][16]);
 int form_topology();
 
 struct Head_Node *server_topology;
@@ -17,30 +17,30 @@ pthread_mutex_t top_mutex;
 
 int main() {
 	pthread_t send_thread, receive_thread;
-	server_topology = NULL;	
+	server_topology = NULL;
+	myself = NULL;
 	topology_version = 0;
-
-	//Create sending and receiving threads
 
 	//First talk to the master and get the topology info.
 	
-	if(form_topology() == 0) {
+	if(form_topology() == RC_SUCCESS) {
+		//Create sending and receiving threads
 		
-
 		pthread_create(&send_thread, NULL, heartbeat_send, (void*)0);
 		pthread_create(&receive_thread, NULL, heartbeat_receive, (void*)0);
 		
-		pthread_join(send_thread);
-		pthread_join(receive_thread);
+		pthread_join(send_thread, NULL);
+		pthread_join(receive_thread, NULL);
 	
 	}
-		
 	return 0;
 }
 
 RC_t form_topology() {	
 	struct sockaddr_in master;
-	int mSocket;
+	struct Node* node;
+	int mSocket, numIPs;
+	char myIPs[10][16];
 
 	if((mSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
 		printf("Unable to create socket. Dying...\n");
@@ -51,6 +51,9 @@ RC_t form_topology() {
 	master.sin_family 	= AF_INET;
 	master.sin_addr.s_addr 	= inet_addr(MASTER_IP);
 	master.sin_port		= htons(MASTER_PORT);
+
+	//First get my IPAddress so that we can get the pointer to it
+	numIPs = getMyIPAddrs(myIPs);
 	
 	if((connect(mSocket, (struct sockaddr *)&master, sizeof(master))) < 0) {
 		printf("Unable to connect with the Master. Dying...\n");
@@ -62,7 +65,26 @@ RC_t form_topology() {
 	//process the incoming packet
 	
 	//Set the topology version received from master.
-	//Get a pointer to the node containing my IP. Set it to *myself. 	
+	//Get a pointer to the node containing my IP. Set it to *myself.
+	
+	nodeFound = 0;
+	node = server_topology->node;
+	do {
+		for(i=0; i<numIPs; i++) {
+			if(!strcmp(node->IP, myIPs[i])) {
+				nodeFound = 1;
+				break;	
+			}
+		}
+		node = node->next;	
+	}while(node != server_topology->node);
+	
+	if(nodeFound)	
+		myself = node;
+	else { 
+		LOG(ERROR, "My IP not found in server topology\n");
+		return RC_FAILURE;	
+	}
 	//By this time, topology is formed and is present in the server_topology pointer
 	//Any changes in the topology will cause a change in the version number of the topology
 	
@@ -81,13 +103,12 @@ void heartbeat_send(void* t) {
 	
 	sendToSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);		
 
-	
 	while(1) {
 		//if topology has changed, it might be that I need to now send to some other node.
 		
 		if( my_version < topology_version ) {
 			my_version = topology_version;
-			if( (sendToNode == NULL) || strcmp(sendToNode->IP, server_topology->node->next->IP) ) {
+			if( (sendToNode == NULL) || strcmp(sendToNode->IP, myself->next->IP) ) {
 				//I need to send to a new node now.
 				if(sendToNode != NULL) 
 					free(sendToNode);
@@ -109,7 +130,7 @@ void heartbeat_send(void* t) {
 void heartbeat_receive(void* t) {
 
 	//I need to have access to the topology
-	//I am expecting heartbeat from someone
+	//I am expecting heartbeat from my predecessor
 	//I wait for sometime to check if I received heartbeat
 	//If I don't get what I want, I am supposed to tell everyone
 	
@@ -170,7 +191,51 @@ void heartbeat_receive(void* t) {
 			//if the heartbeat is from the recvfrom node or someone else. 
 			//This can happen briefly during transitioning. It shoud NOT happen continuously for a long time.
 			
+			//TODO
 			recvfrom();
+		} else {
+			LOG(ERROR, "I shouldn't be here.\n");
 		}	
 	}
+}
+
+int getMyIPAddrs(char myIPs[10][16]) {
+
+	int s;
+	struct ifconf ifconf;
+	struct ifreq ifr[50];
+	int ifs;
+	int i;
+
+	s = socket(AF_INET, SOCK_STREAM, 0);
+	if (s < 0) {
+		perror("socket");
+		return 0;
+	}
+
+	ifconf.ifc_buf = (char *) ifr;
+	ifconf.ifc_len = sizeof(ifr);
+
+	if (ioctl(s, SIOCGIFCONF, &ifconf) == -1) {
+		perror("ioctl");
+		return 0;
+	}
+
+	ifs = ifconf.ifc_len / sizeof(ifr[0]);
+	//printf("interfaces = %d:\n", ifs);
+	for (i = 0; i < ifs; i++) {
+		char ip[INET_ADDRSTRLEN];
+		struct sockaddr_in *s_in = (struct sockaddr_in *) &ifr[i].ifr_addr;
+
+ 		if (!inet_ntop(AF_INET, &s_in->sin_addr, ip, sizeof(ip))) {
+ 			perror("inet_ntop");
+      			return 0;
+    		}
+		
+		strcpy(myIPs[i], ip);
+  	}
+
+	close(s);
+
+	return ifs;
 }
