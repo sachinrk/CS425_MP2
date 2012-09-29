@@ -1,4 +1,4 @@
-#include"udp_server.h"
+#include "udp_server.h"
 
 //This is expected to send and receive heartbeats
 
@@ -11,6 +11,7 @@ void* heartbeat_receive(void* t);
 int form_topology();
 
 struct Head_Node *server_topology;
+struct Node* myself;
 int topology_version;
 pthread_mutex_t top_mutex;
 
@@ -55,11 +56,14 @@ RC_t form_topology() {
 		printf("Unable to connect with the Master. Dying...\n");
 	}
 	
+	//TODO	
 	//Tell the master I want to join the topology
 	
 	//process the incoming packet
 	
-	//By this time, our topology is formed and is present in the server_topology pointer
+	//Set the topology version received from master.
+	//Get a pointer to the node containing my IP. Set it to *myself. 	
+	//By this time, topology is formed and is present in the server_topology pointer
 	//Any changes in the topology will cause a change in the version number of the topology
 	
 	return RC_SUCCESS;
@@ -88,7 +92,7 @@ void heartbeat_send(void* t) {
 				if(sendToNode != NULL) 
 					free(sendToNode);
 				
-				sendToNode = init_node(server_topology->node->next->IP);
+				sendToNode = init_node(myself->next->IP);
 				memset((char*)sendToAddr, 0, sizeof(sendToAddr));
 				sendToAddr.sin_family 		= AF_INET;
 				sendToAddr.sin_port   		= htons(HEARTBEAT_SEND_PORT);
@@ -113,12 +117,20 @@ void heartbeat_receive(void* t) {
 	struct Node* recvFromNode = NULL;
 	int recvFromSocket;
 	struct sockaddr_in recvFromAddr, myAddr;
-	
-	recvFromSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);		
+
+	struct pollfds[1];
+	int rv;
+		
+
+	recvFromSocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);		
 	memset((char*)recvFromAddr, 0, sizeof(recvFromAddr));
 	myAddr.sin_family	= AF_INET;
 	myAddr.sin_port  	= htons(HEARTBEAT_RECV_PORT);
 	myAddr.sin_addr.s_addr	= htnl(INADDR_ANY);
+	
+	pollfd[0].fd = recvFromSocket;
+	pollfd[0].events = POLLIN | POLLPRI;
+	
 	
 	while(1) {
 		//I may have to start receiving from a new node because... 
@@ -127,17 +139,38 @@ void heartbeat_receive(void* t) {
 		
 		if( my_version < topology_version ) {
 			my_version = topology_version;
-			if( (recvFromNode == NULL) || strcmp(recvFromNode->IP, server_topology->node->prev->IP) ) {
+			if( (recvFromNode == NULL) || strcmp(recvFromNode->IP, myself->prev->IP) ) {
 				//I need to recv from a new node now.
 				if(recvFromNode != NULL) 
 					free(recvFromNode);
 				
-				recvFromNode = init_node(server_topology->node->prev->IP);
+				recvFromNode = init_node(myself->prev->IP);
 			}
 		}
 		
-		//	
+		//We can use the poll() function here. Nice thing about it is, it will wake up 
+		//either when a heartbeat arrives or when a timeout has occurred. Exactly what we need here. 
 		
-		//send the heartbeat from here every 400 msec
-		usleep(400 * 1000); 	
+		rv = poll(pollfds, 1, 2000);
+		
+		if(rv == -1) { //timeout has occurred. I did not receive 5 consecutive heartbeats from my recvfrom node.
+			//1) Tell the members that my predecessor is dead
+			//TODO
+	
+			//2) Delete the recvFromNode from the topology I maintain. 
+			//Grab mutex
+			remove_from_list(&server_topology, recvFromNode->IP);
+			//Relese mutex
+			
+			//3) Update the topology_version. my_version will catch up.
+			topology_version++;
+
+		} else if (pollfds[0].revents & (POLLIN | POLLPRI)){
+			//Heartbeat received. Now do a recvfrom and check 
+			//if the heartbeat is from the recvfrom node or someone else. 
+			//This can happen briefly during transitioning. It shoud NOT happen continuously for a long time.
+			
+			recvfrom();
+		}	
+	}
 }
