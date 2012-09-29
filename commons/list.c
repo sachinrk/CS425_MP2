@@ -102,4 +102,5 @@ RC_t delete_all_nodes(struct Head_Node **head)
          free(tmp);
          tmp1 = tmp;
      }    
+     (*head)->node = NULL;
 }
