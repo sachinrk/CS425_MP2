@@ -73,19 +73,6 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload)
 }
 
 /*********************************************************
-** This is the hearteat send function. 
-** It sends the hearbeat to the neighbour
-** 
-** 
-** Arguments:
-** ipAddr : IP Address.
-***********************************************************/
-void sendHeartbeat ()
-{
-    
-}
-
-/*********************************************************
 ** This is the IP address get function 
 ** It gets the system's IP address
 ** 
@@ -122,22 +109,4 @@ RC_t getIpAddr(char *IP)
     
 }
 
-/*********************************************************
-** This is the function used to delete all nodes. 
-** 
-** 
-** 
-** Arguments:
-** None.
-***********************************************************/
 
-/*void deleteAllNodes()
-{
-   nodeData *ptr = head;
-   nodeData *temp;
-   while (ptr && (ptr->next != head)) {
-       temp = ptr->next;
-       free (ptr);
-       ptr = temp;
-   } 
-}*/

@@ -11,14 +11,16 @@
 /*Data structure used for marshalling */
 int marshalInfo[NUM_OF_PAYLOADS][MAX_ELEMENTS_PER_PAYLOAD][2] = 
 { {
-      {(int)(&(((heartbeatPayload*)0)->heartbeatTimeStamp)), sizeof(((heartbeatPayload*)0)->heartbeatTimeStamp)} ,
+      {marshal_field_info(heartbeatPayload, heartbeatTimeStamp)
+      /*(int)(&(((heartbeatPayload*)0)->heartbeatTimeStamp)), sizeof(((heartbeatPayload*)0)->heartbeatTimeStamp)*/} ,
       {0,0}
   },/*HEARTBEAT PAYLOAD*/
   {
       {0,0},
   }, /*ADD DELETE NODE PAYLOAD*/
   {
-      {(int)(&(((heartbeatPayload*)0)->heartbeatTimeStamp)), sizeof(((addNodeRequest*)0)->timestamp) },
+      {marshal_field_info(addNodeRequest, timestamp)
+      /*(int)(&(((addNodeRequest*)0)->timestamp)), sizeof(((addNodeRequest*)0)->timestamp) */},
       {0,0 } 
   }/* ADD NODE REQUEST*/
 };
