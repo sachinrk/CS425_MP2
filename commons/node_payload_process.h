@@ -9,8 +9,12 @@
 #include <netinet/in.h> 
 #include <string.h> 
 #include <arpa/inet.h>
-
+#include "../node/node_send_info.h"
 
 extern neighbourHeartbeat savedHeartbeat[NUM_HEARBEAT_NEIGHBOURS]; 
 void processHeartbeat(char *ipAddr);
+void sendTopologyResponse(int socket, int numOfNodes, char *buf);
+void processHeartbeatPayload(heartbeatPayload *payload) 
+void processNodeAddDeletePayload(addDeleteNodePayload *payload) 
+
 #endif

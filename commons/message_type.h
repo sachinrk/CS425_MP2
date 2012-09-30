@@ -14,7 +14,7 @@
 typedef enum {
    MSG_HEARTBEAT = 0,
    MSG_ADD_DELETE_NODE,
-   MSG_ADD_NODE_REQUEST,
+   MSG_TOPOLOGY_REQUEST,
    MSG_FILE_TRANSFER,
    MSG_EXECUTE_SCRIPT,
    NUM_OF_PAYLOADS
@@ -67,9 +67,11 @@ typedef struct
 
 typedef struct
 {
+  uint8_t flags;
+  #define ADD_NODE_REQUEST      0x01
   long timestamp;
   char ipAddr[16]; 
-}addNodeRequest;
+}topologyRequest;
 
 typedef enum {
     RC_FAILURE = 0,

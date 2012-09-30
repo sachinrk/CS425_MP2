@@ -19,7 +19,7 @@ int marshalInfo[NUM_OF_PAYLOADS][MAX_ELEMENTS_PER_PAYLOAD][2] =
       {0,0},
   }, /*ADD DELETE NODE PAYLOAD*/
   {
-      {marshal_field_info(addNodeRequest, timestamp)
+      {marshal_field_info(topologyRequest, timestamp)
       /*(int)(&(((addNodeRequest*)0)->timestamp)), sizeof(((addNodeRequest*)0)->timestamp) */},
       {0,0 } 
   }/* ADD NODE REQUEST*/

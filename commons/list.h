@@ -10,7 +10,9 @@
 struct Node {
 
 	char IP[16];
-	struct Node *next;
+	unsigned long timestamp;
+        unsigned long num_of_nodes;
+        struct Node *next;
 	struct Node *prev;
 };
 
