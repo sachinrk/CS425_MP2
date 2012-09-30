@@ -81,4 +81,6 @@ typedef enum {
     RC_SOCKET_READ_FAILURE
 }returnCode;
 
+typedef returnCode RC_t;
+
 #endif
