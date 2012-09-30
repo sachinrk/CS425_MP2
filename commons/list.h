@@ -10,12 +10,15 @@
 struct Node {
 
 	char IP[16];
-	struct Node *next;
+	unsigned long timestamp;
+        struct Node *next;
 	struct Node *prev;
 };
 
 struct Head_Node {
 	struct Node* node;
+        unsigned long num_of_nodes;
+ 
 };
 
 typedef struct {

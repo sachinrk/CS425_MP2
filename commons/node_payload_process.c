@@ -1,6 +1,8 @@
 #include "node_payload_process.h"
 
-neigbourHeartbeat savedHeartbeat[NUM_HEARBEAT_NEIGHBOURS];
+neigbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS];
+extern struct Head_Node *server_topology;
+extern pthread_mutex_t node_list_mutex;
 //nodeData *head = NULL;
 //nodeData *thisNode = NULL;
 /*********************************************************
@@ -17,8 +19,8 @@ void processHeartbeatPayload(heartbeatPayload *payload)
     int i; 
     pthread_mutex_lock(&timestamp_mutex);
     for (i = 0; i < NUM_HEARTBEAT_NEIGHBOURS; i++) {
-              if (!(strcpy(savedHeartbeat[i].ipAddr), payload->ipAddr)) {
-                  time(&savedHeartbeat[i].timeStamp);
+              if (!(strcmp(savedHeartbeat[i].ipAddr, payload->ip_addr))) {
+                  time(&savedHeartbeat[i].latestTimeStamp);
        }
     }
     pthread_mutex_unlock(&timestamp_mutex); 
@@ -34,43 +36,79 @@ void processHeartbeatPayload(heartbeatPayload *payload)
 ** ipAddr : IP Address.
 ***********************************************************/
 
-void processNodeAddDeletePayload(addDeleteNodePayload *payload) 
+void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size) 
 {
     int i;
-    //nodeData *ptr = head; 
-    //nodeData *tmp;
+    thread_data *tdata;
+    char *buf;
+    char IP[16];
+    pthread_t thread;
+    pthread_mutex_lock(&node_list_mutex);   
+    if ((payload->flags & ADD_PAYLOAD) && (payload->flags & COMPLETE_PAYLOAD)) {
+        delete_all_nodes();
+    }
     for (i = 0; i < payload->numOfNodes; i++) {
-       pthread_mutex_lock(&node_list_mutex);
-       if ((payload->flags & ADD_PAYLOAD) && (payload->flags & COMPLETE_PAYLOAD)) {
-           delete_all_nodes();
-       }
        if (payload->flags & DELETE_PAYLOAD) {
           remove_from_list(&server_topology, payload->ipAddr[i]);
-          /* while (ptr != NULL && ptr->next != head) {
-               if (!strcmp(ptr->ipAddr, payload->ipAddr[i])) { //Match found. Delete this node 
-                   if (ptr == head) {
-                       head = head->next;
-                   }
-                   (ptr->prev)->next = ptr->next;
-                   (ptr->next)->prev = ptr->prev;
-                   free(ptr);
-                   break;
-               }
-               ptr = ptr->next;
-           } */
-       } else if (payload->flags & ADD_PAYLOAD) {
+       }else if (payload->flags & ADD_PAYLOAD) {
            add_to_list(&server_topology, payload->ipAddr[i]);   
-           /*tmp = (nodeData *)malloc(sizeof(nodeData));
-           strcpy(nodeData->ipAddr, payload->ipAddr[i]);
-           (head->prev)->next = tmp;
-           tmp->prev = head->prev;
-           tmp->next =  head;
-           head->prev = tmp;*/
        }
-       pthread_mutex_unlock(&node_list_mutex); 
-   }
- 
+    }
+    memcpy(IP, server_topology->node->IP, 16); 
+    pthread_mutex_unlock(&node_list_mutex); 
+    if (payload->ttl > 0) {
+        payload->ttl--;
+        buf =  malloc(payload_size);
+        memcpy(buf, payload, payload_size);
+        tdata = malloc(sizeof(thread_data));
+        memcpy(tdata->ip, IP, 16);
+        tdata->payload_size = payload_size;
+        tdata->payload = buf;
+        (void)pthread_create(&thread, NULL, send_node_update_payload, (void*)tdata);
+         
+    }
 }
+/*********************************************************
+** This is the topology request function. 
+** Can be called by both the master and the node willing
+** to join the ring
+** If the ADD_NODE_REQUEST bit is set, it means that this 
+** node wants to join the topology. 
+** Arguments:
+** 
+***********************************************************/
+
+void processTopologyRequest(int socket, topologyRequest *payload) 
+{
+    int i;
+    int offset = 0;
+    struct Node* tmp;
+    struct Node* found = NULL;
+    char *buf;
+    buf = (char *)malloc(16 * (server_topology->num_of_nodes + 1)); 
+    pthread_mutex_lock(&node_list_mutex);
+    for (tmp = server_topology->node; tmp && tmp->next != server_topology->node; tmp++) {
+        if (!strcmp(payload->ipAddr, tmp->IP)) {
+            found = tmp;
+            
+        }
+        strcpy(buf + offset, tmp->IP);
+        offset += 16;
+    }
+    if (payload->flags & ADD_NODE_REQUEST) {
+        if (found) {
+            LOG(ERROR, " Received duplicate node add request from %s ", payload->ipAddr);
+            return;
+        }
+        add_to_list(&server_topology, payload->ipAddr); 
+        strcpy(buf + offset, tmp->IP);
+        server_topology->num_of_nodes++; 
+    }
+    pthread_mutex_unlock(&node_list_mutex);
+    sendTopologyResponse(socket, server_topology->num_of_nodes, buf);  
+    free(buf);
+}
+
 
 /*********************************************************
 ** This is the IP address get function 
@@ -80,7 +118,7 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload)
 ** Arguments:
 ** ipAddr : IP Address.
 ***********************************************************/
-RC_t getIpAddr(char *IP)
+/*RC_t getIpAddr(char *IP)
 {
     struct ifaddrs * ifAddrStruct=NULL;
     struct ifaddrs * ifa=NULL;
@@ -107,6 +145,30 @@ RC_t getIpAddr(char *IP)
    
    return rc;
     
+}*/
+
+/*********************************************************
+** This is payload used to send request for topology 
+** request
+** 
+** 
+** Arguments:
+** socket     : socket on which the payload was received.
+** numOfNodes : Num of nodes in topology.
+** buf        : buffer having IP addresses of nodes.
+***********************************************************/
+void sendTopologyResponse(int socket, int numOfNodes, char *buf)
+{
+    int size = (sizeof(addDeleteNodePayload) + (numOfNodes * 16));
+ 
+    addDeleteNodePayload *payloadBuf = malloc(size);
+    
+    payloadBuf->numOfNodes = numOfNodes;
+    payloadBuf->flags = ADD_PAYLOAD | COMPLETE_PAYLOAD;
+    payloadBuf->ttl = 0;          //No need to propogate
+    memcpy(payloadBuf->ipAddr, buf, numOfNodes * 16);
+    sendPayload(socket, MSG_ADD_DELETE_NODE, payloadBuf, size);
+    free(payloadBuf); 
 }
 
 
