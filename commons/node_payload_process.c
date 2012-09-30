@@ -1,6 +1,8 @@
 #include "node_payload_process.h"
 
-neigbourHeartbeat savedHeartbeat[NUM_HEARBEAT_NEIGHBOURS];
+neigbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS];
+extern struct Head_Node *server_topology;
+extern pthread_mutex_t node_list_mutex;
 //nodeData *head = NULL;
 //nodeData *thisNode = NULL;
 /*********************************************************
@@ -17,8 +19,8 @@ void processHeartbeatPayload(heartbeatPayload *payload)
     int i; 
     pthread_mutex_lock(&timestamp_mutex);
     for (i = 0; i < NUM_HEARTBEAT_NEIGHBOURS; i++) {
-              if (!(strcpy(savedHeartbeat[i].ipAddr), payload->ipAddr)) {
-                  time(&savedHeartbeat[i].timeStamp);
+              if (!(strcmp(savedHeartbeat[i].ipAddr, payload->ip_addr))) {
+                  time(&savedHeartbeat[i].latestTimeStamp);
        }
     }
     pthread_mutex_unlock(&timestamp_mutex); 
@@ -52,7 +54,7 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
            add_to_list(&server_topology, payload->ipAddr[i]);   
        }
     }
-    memcpy(IP, server_topology->head->IP, 16); 
+    memcpy(IP, server_topology->node->IP, 16); 
     pthread_mutex_unlock(&node_list_mutex); 
     if (payload->ttl > 0) {
         payload->ttl--;
@@ -61,8 +63,8 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
         tdata = malloc(sizeof(thread_data));
         memcpy(tdata->ip, IP, 16);
         tdata->payload_size = payload_size;
-        payload = buf;
-        (void)pthread_create(threads, NULL, send_node_update_payload, (void*)tData);
+        tdata->payload = buf;
+        (void)pthread_create(&thread, NULL, send_node_update_payload, (void*)tdata);
          
     }
 }
@@ -80,8 +82,8 @@ void processTopologyRequest(int socket, topologyRequest *payload)
 {
     int i;
     int offset = 0;
-    Node* tmp;
-    Node* found = NULL;
+    struct Node* tmp;
+    struct Node* found = NULL;
     char *buf;
     buf = (char *)malloc(16 * (server_topology->num_of_nodes + 1)); 
     pthread_mutex_lock(&node_list_mutex);
@@ -103,7 +105,7 @@ void processTopologyRequest(int socket, topologyRequest *payload)
         server_topology->num_of_nodes++; 
     }
     pthread_mutex_unlock(&node_list_mutex);
-    sendTopologyResponse(int socket, int numOfNodes, char *buf);  
+    sendTopologyResponse(socket, server_topology->num_of_nodes, buf);  
     free(buf);
 }
 
@@ -116,7 +118,7 @@ void processTopologyRequest(int socket, topologyRequest *payload)
 ** Arguments:
 ** ipAddr : IP Address.
 ***********************************************************/
-RC_t getIpAddr(char *IP)
+/*RC_t getIpAddr(char *IP)
 {
     struct ifaddrs * ifAddrStruct=NULL;
     struct ifaddrs * ifa=NULL;
@@ -143,7 +145,7 @@ RC_t getIpAddr(char *IP)
    
    return rc;
     
-}
+}*/
 
 /*********************************************************
 ** This is payload used to send request for topology 
@@ -155,16 +157,16 @@ RC_t getIpAddr(char *IP)
 ** numOfNodes : Num of nodes in topology.
 ** buf        : buffer having IP addresses of nodes.
 ***********************************************************/
-void sendTopologyResponse(int socket, int numOfNodes, char *buf);
+void sendTopologyResponse(int socket, int numOfNodes, char *buf)
 {
     int size = (sizeof(addDeleteNodePayload) + (numOfNodes * 16));
  
-    char *payloadBuf = malloc(size);
+    addDeleteNodePayload *payloadBuf = malloc(size);
     
     payloadBuf->numOfNodes = numOfNodes;
-    payload->flags = ADD_PAYLOAD | COMPLETE_PAYLOAD;
-    payload->ttl = 0;          //No need to propogate
-    memcpy(payload->ipAddr, buf, numOfNodes * 16);
+    payloadBuf->flags = ADD_PAYLOAD | COMPLETE_PAYLOAD;
+    payloadBuf->ttl = 0;          //No need to propogate
+    memcpy(payloadBuf->ipAddr, buf, numOfNodes * 16);
     sendPayload(socket, MSG_ADD_DELETE_NODE, payloadBuf, size);
     free(payloadBuf); 
 }

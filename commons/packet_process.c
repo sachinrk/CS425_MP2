@@ -35,7 +35,10 @@ void processPacket(int socket, payloadBuf *packet) {
                      break;
 		
 		case MSG_ADD_DELETE_NODE:
-                     processAddDeleteNodePayload(packet->payload);
+                     processAddDeleteNodePayload(packet->payload, packet->length);
+                     break;
+                case MSG_TOPOLOGY_REQUEST:
+                     processTopologyRequest(socket, packet->payload);
                      break;
                 case MSG_FILE_TRANSFER :
                      ftpBuf = (fileTransferPayload *)(packet->payload);				
