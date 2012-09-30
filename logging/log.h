@@ -48,5 +48,7 @@ extern level log_level;
   } \
 }while (0) 
 
+void log_init();
+void log_exit();
 
 #endif

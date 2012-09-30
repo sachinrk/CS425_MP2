@@ -17,13 +17,6 @@ void log_init()
    pthread_mutex_init(&log_mutex, NULL);
 }
 
-/*void main()
-{
-    log_init();
-    LOG(DEBUG, "Hello %s", "world");
-    log_exit();
-}*/
-
 void log_exit()
 {
     fclose(log_fp);
