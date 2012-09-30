@@ -1,5 +1,5 @@
-#ifndef __FORM_TOPOLOGY__
-#define __FORM_TOPOLOGY__
+#ifndef __JOIN_TOPOLOGY__
+#define __JOIN_TOPOLOGY__
 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -7,10 +7,10 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <sys/poll.h>
-#include "../logging/log.h"
-#include "../commons/message_type.h"
 #include "../commons/list.h"
+#include "../logging/log.h"
 
-RC_t form_topology();
+RC_t join_topology();
+RC_t tell();
 
 #endif

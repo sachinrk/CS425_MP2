@@ -1,10 +1,10 @@
-#include "form_topology.h"
+#include "get_topology.h"
 
 extern struct Head_Node *server_topology;
 extern struct Node *myself;
 extern int topology_version;
 
-RC_t form_topology() {	
+RC_t get_topology() {	
 	struct sockaddr_in master;
 	struct Node* node;
 	int mSocket, numIPs, nodeFound, i;
@@ -17,8 +17,8 @@ RC_t form_topology() {
 	
 	memset(&master, 0, sizeof(master));
 	master.sin_family 	= AF_INET;
-	master.sin_addr.s_addr 	= inet_addr(MASTER_IP);
-	master.sin_port		= htons(MASTER_PORT);
+	master.sin_addr.s_addr 	= inet_addr(ADMISSION_CONTACT_IP);
+	master.sin_port		= htons(ADMISSION_CONTACT_PORT);
 
 	//First get my IPAddress so that we can get the pointer to it
 	numIPs = getMyIPAddrs(myIPs);

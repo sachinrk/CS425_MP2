@@ -1,41 +1,13 @@
-#include "admission_contact.h"
+#include "topology_update.h"
 
-#define IP_FILE_PATH "./IPs"
+extern struct Head_Node *server_topology;
+extern struct Node* myself;
 
-/*
-//Iterate over IPs file and get the topology
-int main() {
-
-	struct Head_Node *topology = NULL;
-	struct Node *node = NULL;
-	FILE *fp = NULL;
-	struct stat file_stat;
-	int version = 0;
-	time_t last_mtime = 0;
-	
-	while(1) {
-		
-		if(stat(IP_FILE_PATH, &file_stat) != -1) {
-			if(last_mtime <= file_stat.st_mtime) {
-				fp = fopen(IP_FILE_PATH, "r");
-				(void)parse_IPs(fp, &topology, &version);
-				fclose(fp);
-			}
-		}
-		sleep(1);
-	}
-	return 0;
-}*/
-
-
-struct Head_Node *server_topology;	
-
-int main() {
+void* topology_update() {
 
 	int listenSocket, connectSocket, socketFlags, ret, clientSize;
 	struct sockaddr_in myAddress, clientAddress;
 	int i,j, bytes, numBytes, pid;
-	struct Head_Node *server_topology;	
 	
 	payloadBuf *packet;
 	int rc;
@@ -79,9 +51,9 @@ int main() {
 			);
 
 		//A client has connected. 
-		//It will either request that it wants to join, or tell me some node has left.
+		//It will send me updates regarding the topology - either someone has joined or someone has left	
 		
-		
-	}	
-}	
+	}
 
+	pthread_exit(NULL);
+}

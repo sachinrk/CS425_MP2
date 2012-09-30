@@ -1,5 +1,5 @@
-#ifndef __UDP_SERVER__
-#define __UDP_SERVER__
+#ifndef __FAILURE_DETECTOR__
+#define __FAILURE_DETECTOR__
 
 #include <stdio.h>
 #include <stropts.h>
