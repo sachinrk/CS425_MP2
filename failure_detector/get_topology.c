@@ -3,13 +3,16 @@
 extern struct Head_Node *server_topology;
 extern struct Node *myself;
 extern int topology_version;
+char myIPs[10][16];
 
 RC_t get_topology() {	
 	struct sockaddr_in master;
 	struct Node* node;
 	int mSocket, numIPs, nodeFound, i;
-	char myIPs[10][16];
+	payloadBuf *packet;
 
+	printf("Contacting admission control to join group\n");
+	
 	if((mSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
 		printf("Unable to create socket. Dying...\n");
 		exit(0);
@@ -30,7 +33,12 @@ RC_t get_topology() {
 	//TODO	
 	//Tell the master I want to join the topology
 	
-	//process the incoming packet
+	sendTopologyJoinRequest(mSocket);
+	rc = message_decode(mSocket,&packet);
+	processPacket(mSocket, packet);
+	
+	//process the incoming packet	
+			
 	
 	//Set the topology version received from master.
 	//Get a pointer to the node containing my IP. Set it to *myself.
@@ -56,5 +64,6 @@ RC_t get_topology() {
 	//By this time, topology is formed and is present in the server_topology pointer
 	//Any changes in the topology will cause a change in the version number of the topology
 	
+	printf("Received topology from admission control\n");	
 	return RC_SUCCESS;
 }

@@ -78,9 +78,15 @@ int main() {
 				(clientAddress.sin_addr.s_addr & 0xFF000000) >> 24 
 			);
 
-		//A client has connected. 
-		//It will either request that it wants to join, or tell me some node has left.
-		
+		//A client has connected.
+		//I need to tell the topology to the client
+	
+		rc = message_decode(connectSocket, &packet);
+		if(rc == RC_SUCCESS)
+			processPacket(connectSocket, packet);	
+	
+		//Now I need to tell other that a new node is about to join. 
+		//First tell the nodes neigbors	
 		
 	}	
 }	

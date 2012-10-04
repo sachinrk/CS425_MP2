@@ -6,17 +6,30 @@
 struct Head_Node *server_topology;
 struct Node* myself;
 int topology_version;
+char myIP[16];
 
-int main() {
-	pthread_t send_thread, receive_thread, listen_thread;
+extern pthread_mutex_t state_machine_mutex;
+extern state_machine current_state;
+
+pthread_t send_thread, receive_thread, listen_thread;
+
+int node_init() {
 	server_topology = NULL;
 	myself = NULL;
 	topology_version = 0;
 	struct Node* node;
+	RC_t rc;
 
 	//First talk to the master and get the topology info.
 	
+	if ( getIPAddr() != RC_SUCCESS) {
+		LOG(ERROR, "Failed to get my IP address");	
+	}
+	
 	if(get_topology() == RC_SUCCESS) {
+		LOG(INFO, "Get topology successful\n");
+		printf("Get topology successful\n");
+
 		if ( join_topology() == RC_SUCCESS ) {
 
 			//At this point, I've joined the topology
@@ -40,15 +53,23 @@ int main() {
 				}
 			}
 	
-			pthread_join(send_thread, NULL);
-			pthread_join(receive_thread, NULL);
-			pthread_join(listen_thread, NULL);
+			//pthread_join(send_thread, NULL);
+			//pthread_join(receive_thread, NULL);
+			//pthread_join(listen_thread, NULL);
 		}
 	}
+	
+	if (current_state == INIT) {
+		current_state = TOPOLOGY_FORMED;
+	} else {
+		LOG(ERROR, "State is other than INIT. Can't be\n");
+	}
 
-	return 0;
+	return RC_SUCCESS;
 }
 
+
+/*
 int getMyIPAddrs(char myIPs[10][16]) {
 
 	int s;
@@ -89,3 +110,4 @@ int getMyIPAddrs(char myIPs[10][16]) {
 
 	return ifs;
 }
+*/

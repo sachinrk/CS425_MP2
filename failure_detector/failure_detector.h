@@ -18,6 +18,6 @@
 #include "heartbeat_send.h"
 #include "heartbeat_receive.h"
 #include "../logging/log.h"
-
+#include "../ui/ui.h"
 
 #endif
