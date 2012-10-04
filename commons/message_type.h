@@ -62,7 +62,7 @@ typedef struct
   #define NODE_FAILURE          0x08 
   #define DELTA_PAYLOAD         0x10                      //This bit is set if only the new node in the system is getting added  
   #define COMPLETE_PAYLOAD      0x20                      //This bit is set if set of all nodes is being sent. 
-  char    ipAddr[0][16];                             
+  char    id[0][48];                             
 }addDeleteNodePayload;
 
 typedef struct
