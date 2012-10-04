@@ -10,6 +10,7 @@ RC_t get_topology() {
 	struct Node* node;
 	int mSocket, numIPs, nodeFound, i;
 	payloadBuf *packet;
+	RC_t rc;
 
 	printf("Contacting admission control to join group\n");
 	
@@ -29,8 +30,7 @@ RC_t get_topology() {
 	if((connect(mSocket, (struct sockaddr *)&master, sizeof(master))) < 0) {
 		printf("Unable to connect with the Master. Dying...\n");
 	}
-	
-	//TODO	
+		
 	//Tell the master I want to join the topology
 	
 	sendTopologyJoinRequest(mSocket);
@@ -58,7 +58,7 @@ RC_t get_topology() {
 	if(nodeFound)	
 		myself = node;
 	else { 
-		LOG(ERROR, "My IP not found in server topology\n");
+		LOG(ERROR, "My IP not found in server topology%s\n","");
 		return RC_FAILURE;	
 	}
 	//By this time, topology is formed and is present in the server_topology pointer

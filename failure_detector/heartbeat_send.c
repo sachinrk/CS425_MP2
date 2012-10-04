@@ -37,6 +37,8 @@ void* heartbeat_send(void* t) {
 		}
 		
 		//send the heartbeat from here every 400 msec
+		//TODO add a function to actually send the heartbeat here
+
 		usleep(400 * 1000); 	
 	}
 	pthread_exit(NULL);	

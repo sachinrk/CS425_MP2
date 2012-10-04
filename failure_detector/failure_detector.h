@@ -10,14 +10,18 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#include "../commons/message_type.h"
 #include "../commons/debug.h"
 #include "../logging/log.h"
 #include "../commons/list.h"
 #include "join_topology.h"
-#include "form_topology.h"
 #include "heartbeat_send.h"
 #include "heartbeat_receive.h"
+#include "topology_update.h"
 #include "../logging/log.h"
 #include "../ui/ui.h"
+
+#define ADMISSION_CONTACT_IP "127.0.0.1"	//This is not decided yet
+#define ADMISSION_CONTACT_PORT 1101		//This is not decided yet
 
 #endif

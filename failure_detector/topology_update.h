@@ -8,5 +8,10 @@
 #include <unistd.h>
 #include "../commons/list.h"
 #include "../logging/log.h"
+#include "../commons/message_type.h"
+
+#define LISTEN_THREAD_PORT 1104
+
+void* topology_update(void*);
 
 #endif

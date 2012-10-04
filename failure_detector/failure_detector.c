@@ -1,8 +1,6 @@
 #include "failure_detector.h"
 
-#define ADMISSION_CONTACT_IP "127.0.0.1"	//This is not decided yet
-#define ADMISSION_CONTACT_PORT 1101		//This is not decided yet
-
+pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 struct Head_Node *server_topology;
 struct Node* myself;
 int topology_version;
@@ -23,14 +21,14 @@ int node_init() {
 	//First talk to the master and get the topology info.
 	
 	if ( getIPAddr() != RC_SUCCESS) {
-		LOG(ERROR, "Failed to get my IP address");	
+		LOG(ERROR, "Failed to get my IP address %s.", "");	
 	}
 	
 	if(get_topology() == RC_SUCCESS) {
-		LOG(INFO, "Get topology successful\n");
+		LOG(INFO, "Get topology successful%s\n","");
 		printf("Get topology successful\n");
 
-		if ( join_topology() == RC_SUCCESS ) {
+		//if ( join_topology() == RC_SUCCESS ) {
 
 			//At this point, I've joined the topology
 			//Create sending and receiving threads and TCP listening thread
@@ -44,25 +42,25 @@ int node_init() {
 			
 			//TODO: This algo might require a change
 
-			for	(node = myself->next->next ;\
-				(node != myself->prev) && (node != myself) && (node != myself->next); \
-				node = node->next) {
+			//for	(node = myself->next->next ;\
+			//	(node != myself->prev) && (node != myself) && (node != myself->next); \
+			//	node = node->next) {
 
-				if( tell(node) /*that I've joined*/ != RC_SUCCESS ) {
-					LOG(ERROR, "Failed to convey topology to node %s", node->IP);
-				}
-			}
+			//	if( tell(node) /*that I've joined*/ != RC_SUCCESS ) {
+			//		LOG(ERROR, "Failed to convey topology to node %s", node->IP);
+			//	}
+			//}
 	
 			//pthread_join(send_thread, NULL);
 			//pthread_join(receive_thread, NULL);
 			//pthread_join(listen_thread, NULL);
-		}
+		//}
 	}
 	
 	if (current_state == INIT) {
 		current_state = TOPOLOGY_FORMED;
 	} else {
-		LOG(ERROR, "State is other than INIT. Can't be\n");
+		LOG(ERROR, "State is other than INIT. Can't be%s\n", "");
 	}
 
 	return RC_SUCCESS;

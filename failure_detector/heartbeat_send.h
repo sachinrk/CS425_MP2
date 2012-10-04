@@ -9,5 +9,5 @@
 #include "../commons/list.h"
 #include "../logging/log.h"
 
-void* heartbeat_send(void* t) {
+void* heartbeat_send(void* t);
 #endif 

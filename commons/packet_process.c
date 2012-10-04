@@ -10,6 +10,7 @@
 ** socket : socket on which the message was rceived
 ** packet : Packet to be processed.
 ***********************************************************/
+extern topology_version;
 
 void processPacket(int socket, payloadBuf *packet) {
 	uint16_t packetType, packetLength, bytesToWrite, bytesWritten = 0;
@@ -35,6 +36,7 @@ void processPacket(int socket, payloadBuf *packet) {
                      break;
 		
 		case MSG_ADD_DELETE_NODE:
+                     topology_version++;
                      processAddDeleteNodePayload(packet->payload, packet->length);
                      break;
                 case MSG_TOPOLOGY_REQUEST:

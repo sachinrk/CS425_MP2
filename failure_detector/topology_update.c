@@ -3,7 +3,7 @@
 extern struct Head_Node *server_topology;
 extern struct Node* myself;
 
-void* topology_update() {
+void* topology_update(void* t) {
 
 	int listenSocket, connectSocket, socketFlags, ret, clientSize;
 	struct sockaddr_in myAddress, clientAddress;
@@ -23,7 +23,7 @@ void* topology_update() {
 	memset(&myAddress, 0, sizeof(myAddress));
 	myAddress.sin_family	  = AF_INET;
 	myAddress.sin_addr.s_addr = htonl(INADDR_ANY);
-	myAddress.sin_port	  = htons(MY_PORT);
+	myAddress.sin_port	  = htons(LISTEN_THREAD_PORT);
 	
 	//Now bind the socket..
 	if((bind(listenSocket, (struct sockaddr *)&myAddress, sizeof(myAddress))) < 0) {
@@ -32,7 +32,7 @@ void* topology_update() {
 	}
 	
 	//Listen on the socket for incoming connections..	
-	if((listen(listenSocket, LISTEN_Q)) < 0) {
+	if((listen(listenSocket, 10)) < 0) {
 		printf("Error listening on socket. Dying...\n");
 		return 0;
 	}
@@ -52,7 +52,9 @@ void* topology_update() {
 
 		//A client has connected. 
 		//It will send me updates regarding the topology - either someone has joined or someone has left	
-		
+		rc = message_decode(connectSocket, &packet);
+		processPacket(connectSocket,packet);
+		close(connectSocket);	
 	}
 
 	pthread_exit(NULL);
