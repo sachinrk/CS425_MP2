@@ -23,7 +23,7 @@ void processHeartbeat(char *ipAddr);
 void sendTopologyResponse(int socket, int numOfNodes, char *buf);
 void processHeartbeatPayload(heartbeatPayload *payload); 
 void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size) ;
-
+void sendTopologyJoinRequest(int socket);
 
 
 #endif
