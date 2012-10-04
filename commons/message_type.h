@@ -6,6 +6,7 @@
 #include "time.h"
 #define FILE_PATH_LENGTH 200
 #define MAX_ELEMENTS_PER_PAYLOAD 8
+#define ID_SIZE 20
 
 #define my_malloc(bytes) \
 do \
@@ -19,7 +20,7 @@ do \
     (int)(&(((data_structure *)0)->field)), sizeof(((data_structure *)0)->field)
 
 /*Macro for demultiplexing IP from payload */
-#define getIPAddress(ID) ((ID) + 32)
+#define getIPAddress(ID) (ID + 4)
 
 
 typedef enum {
@@ -73,7 +74,7 @@ typedef struct
   #define NODE_FAILURE          0x08 
   #define DELTA_PAYLOAD         0x10                      //This bit is set if only the new node in the system is getting added  
   #define COMPLETE_PAYLOAD      0x20                      //This bit is set if set of all nodes is being sent. 
-  char    ID[0][48];                             
+  char    ID[0][ID_SIZE];                             
 }addDeleteNodePayload;
 
 typedef struct
@@ -82,7 +83,7 @@ typedef struct
   #define ADD_NODE_REQUEST      0x01
   long timestamp;
   char ipAddr[16]; 
-}topologyRequest;
+}topologyRequestPayload;
 
 typedef enum {
     RC_FAILURE = 0,
