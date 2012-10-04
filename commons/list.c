@@ -1,10 +1,10 @@
 #include "list.h"
-#define ID_SIZE ID_SIZE
+#define ID_SIZE 48
 
 struct Head_Node * init_head(struct Node* node) {
 	struct Head_Node * tmp = NULL;
 	
-	tmp = (struct Head_Node*)malloc(sizeof(struct Head_Node));
+	tmp = (struct Head_Node*)my_malloc(sizeof(struct Head_Node));
 	if(tmp != NULL)
 		tmp->node = node;
 	
@@ -14,11 +14,11 @@ struct Head_Node * init_head(struct Node* node) {
 struct Node* init_node(char ID[ID_SIZE]) {
 	struct Node * tmp = NULL;
 	
-	tmp = (struct Node*) malloc ( sizeof(struct Node));
+	tmp = (struct Node*) my_malloc ( sizeof(struct Node));
 	if(tmp != NULL) {
-		memcpy(tmp->IP, ID, 15);
+		memcpy(tmp->timestamp, ID, 32);
                 tmp->IP[15] = 0;
-                memcpy(tmp->timestamp, ID+16, 32);
+                memcpy(tmp->timestamp, getIpAddres(ID), 32);
                 tmp->timestamp = ntohl(tmp->timestamp);  
 		tmp->next = tmp;
 		tmp->prev = tmp;	
@@ -33,14 +33,16 @@ int add_to_list(struct Head_Node ** head, char ID[ID_SIZE]) {
 	tmp = init_node(ID);
 	if ( *head == NULL ) {
 		*head = init_head(tmp);
-		return 0;
+		(*head)->num_of_nodes = 1;
+                return 0;
 	} else {
 
 		tmp->next = (*head)->node;
 		tmp->prev = (*head)->node->prev;
 		(*head)->node->prev->next = tmp;
 		(*head)->node->prev = tmp;
-		return 0;	
+		(*head)->num_of_nodes++;
+                return 0;	
 	}
 }
 
@@ -79,7 +81,7 @@ int remove_from_list(struct Head_Node **head, char ID[ID_SIZE]) {
 		
 		if(tmp == (*head)->node) 
 			(*head)->node = NULL;
-
+                (*head)->num_of_nodes--;
 		free(tmp);
 
 		DEBUG(("Remove_from_listNode successfully removed."));

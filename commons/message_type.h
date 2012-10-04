@@ -7,9 +7,20 @@
 #define FILE_PATH_LENGTH 200
 #define MAX_ELEMENTS_PER_PAYLOAD 8
 
+#define my_malloc(bytes) \
+do \
+{ \
+  memset(malloc((bytes)) , 0 , (bytes)); \
+}while(0) 
+
+
 /*Macros used for Marshalling */
 #define marshal_field_info(data_structure, field) \
     (int)(&(((data_structure *)0)->field)), sizeof(((data_structure *)0)->field)
+
+/*Macro for demultiplexing IP from payload */
+#define getIPAddress(ID) ((ID) + 32)
+
 
 typedef enum {
    MSG_HEARTBEAT = 0,
@@ -62,7 +73,7 @@ typedef struct
   #define NODE_FAILURE          0x08 
   #define DELTA_PAYLOAD         0x10                      //This bit is set if only the new node in the system is getting added  
   #define COMPLETE_PAYLOAD      0x20                      //This bit is set if set of all nodes is being sent. 
-  char    id[0][48];                             
+  char    ID[0][48];                             
 }addDeleteNodePayload;
 
 typedef struct
