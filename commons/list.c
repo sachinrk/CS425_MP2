@@ -1,5 +1,5 @@
 #include "list.h"
-
+#define ID_SIZE ID_SIZE
 
 struct Head_Node * init_head(struct Node* node) {
 	struct Head_Node * tmp = NULL;
@@ -11,12 +11,15 @@ struct Head_Node * init_head(struct Node* node) {
 	return tmp;
 }
 
-struct Node* init_node(char IP[16]) {
+struct Node* init_node(char ID[ID_SIZE]) {
 	struct Node * tmp = NULL;
 	
 	tmp = (struct Node*) malloc ( sizeof(struct Node));
 	if(tmp != NULL) {
-		strcpy(tmp->IP, IP);
+		memcpy(tmp->IP, ID, 15);
+                tmp->IP[15] = 0;
+                memcpy(tmp->timestamp, ID+16, 32);
+                tmp->timestamp = ntohl(tmp->timestamp);  
 		tmp->next = tmp;
 		tmp->prev = tmp;	
 	}
@@ -24,10 +27,10 @@ struct Node* init_node(char IP[16]) {
 	return tmp;
 }
 
-int add_to_list(struct Head_Node ** head, char IP[16]) {	
+int add_to_list(struct Head_Node ** head, char ID[ID_SIZE]) {	
 	struct Node * tmp;
 	
-	tmp = init_node(IP);
+	tmp = init_node(ID);
 	if ( *head == NULL ) {
 		*head = init_head(tmp);
 		return 0;
@@ -41,7 +44,7 @@ int add_to_list(struct Head_Node ** head, char IP[16]) {
 	}
 }
 
-int remove_from_list(struct Head_Node **head, char IP[16]) {
+int remove_from_list(struct Head_Node **head, char ID[ID_SIZE]) {
 	struct Node *tmp, *next_node, *prev_node;
 	int found = 0;
 
