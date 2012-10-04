@@ -33,7 +33,8 @@ int add_to_list(struct Head_Node ** head, char ID[ID_SIZE]) {
 	tmp = init_node(ID);
 	if ( *head == NULL ) {
 		*head = init_head(tmp);
-		return 0;
+		(*head)->num_of_nodes = 1;
+                return 0;
 	} else {
 
 		tmp->next = (*head)->node;
@@ -80,7 +81,7 @@ int remove_from_list(struct Head_Node **head, char ID[ID_SIZE]) {
 		
 		if(tmp == (*head)->node) 
 			(*head)->node = NULL;
-
+                (*head)->num_of_nodes--;
 		free(tmp);
 
 		DEBUG(("Remove_from_listNode successfully removed."));
