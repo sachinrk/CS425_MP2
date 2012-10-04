@@ -1,4 +1,4 @@
-#include "node_payload_process.h"
+#include "fdetect_payload_process.h"
 
 neigbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS];
 extern struct Head_Node *server_topology;
@@ -49,12 +49,12 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
     }
     for (i = 0; i < payload->numOfNodes; i++) {
        if (payload->flags & DELETE_PAYLOAD) {
-          remove_from_list(&server_topology, payload->ipAddr[i]);
+          remove_from_list(&server_topology, payload->ID[i]);
        }else if (payload->flags & ADD_PAYLOAD) {
-           add_to_list(&server_topology, payload->ipAddr[i]);   
+           add_to_list(&server_topology, payload->ID[i]);   
        }
     }
-    memcpy(IP, server_topology->node->IP, 16); 
+    memcpy(IP, myself->next->IP, 16); 
     pthread_mutex_unlock(&node_list_mutex); 
     if (payload->ttl > 0) {
         payload->ttl--;
@@ -85,7 +85,7 @@ void processTopologyRequest(int socket, topologyRequest *payload)
     struct Node* tmp;
     struct Node* found = NULL;
     char *buf;
-    buf = (char *)malloc(16 * (server_topology->num_of_nodes + 1)); 
+    buf = (char *)malloc(48 * (server_topology->num_of_nodes + 1)); 
     pthread_mutex_lock(&node_list_mutex);
     for (tmp = server_topology->node; tmp && tmp->next != server_topology->node; tmp++) {
         if (!strcmp(payload->ipAddr, tmp->IP)) {
@@ -93,14 +93,15 @@ void processTopologyRequest(int socket, topologyRequest *payload)
             
         }
         strcpy(buf + offset, tmp->IP);
-        offset += 16;
+        memcpy(buf + offset + 16, htonl(tmp->timestamp));
+        offset += 48;
     }
     if (payload->flags & ADD_NODE_REQUEST) {
         if (found) {
             LOG(ERROR, " Received duplicate node add request from %s ", payload->ipAddr);
             return;
         }
-        add_to_list(&server_topology, payload->ipAddr); 
+        add_to_list(&server_topology, payload->ID[0]); 
         strcpy(buf + offset, tmp->IP);
         server_topology->num_of_nodes++; 
     }
@@ -159,7 +160,7 @@ void processTopologyRequest(int socket, topologyRequest *payload)
 ***********************************************************/
 void sendTopologyResponse(int socket, int numOfNodes, char *buf)
 {
-    int size = (sizeof(addDeleteNodePayload) + (numOfNodes * 16));
+    int size = (sizeof(addDeleteNodePayload) + (numOfNodes * 48));
  
     addDeleteNodePayload *payloadBuf = malloc(size);
     

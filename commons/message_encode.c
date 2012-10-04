@@ -16,6 +16,7 @@ int marshalInfo[NUM_OF_PAYLOADS][MAX_ELEMENTS_PER_PAYLOAD][2] =
       {0,0}
   },/*HEARTBEAT PAYLOAD*/
   {
+      {marshal_field_info(nodeAddDelete)}
       {0,0},
   }, /*ADD DELETE NODE PAYLOAD*/
   {
