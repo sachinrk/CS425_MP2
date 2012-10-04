@@ -41,8 +41,8 @@ typedef struct
 
 typedef struct 
 {
-    long   heartbeatTimeStamp;
-    char   ip_addr[16];    
+    uint32_t   heartbeatTimeStamp;
+    char       ip_addr[16];    
 }heartbeatPayload;
 
 typedef struct

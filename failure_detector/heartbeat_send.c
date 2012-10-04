@@ -15,6 +15,7 @@ void* heartbeat_send(void* t) {
 	struct Node* sendToNode = NULL;
 	int sendToSocket;
 	struct sockaddr_in sendToAddr;
+	heartbeatPayload *hbPayload = (heartbeatPayload*)malloc(sizeof(heartbeatPayload));
 	
 	sendToSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);		
 
@@ -38,7 +39,8 @@ void* heartbeat_send(void* t) {
 		
 		//send the heartbeat from here every 400 msec
 		//TODO add a function to actually send the heartbeat here
-
+		strcpy(hbPayload->ip_addr, myself->IP);
+		sendPayloadUDP(sendToSocket,MSG_HEARTBEAT,hbPayload,sizeof(hbPayload),&sendToAddr);
 		usleep(400 * 1000); 	
 	}
 	pthread_exit(NULL);	
