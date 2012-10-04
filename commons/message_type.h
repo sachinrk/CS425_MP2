@@ -10,8 +10,8 @@
 #define my_malloc(bytes) \
 do \
 { \
-    memset(malloc((bytes)), 0 , bytes); \
-}while(0) \
+  memset(malloc((bytes)) , 0 , (bytes)); \
+}while(0) 
 
 
 /*Macros used for Marshalling */

@@ -4,7 +4,7 @@ neigbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS];
 extern struct Head_Node *server_topology;
 extern pthread_mutex_t node_list_mutex;
 extern myIP[16];
-
+extern struct Node *myself;
 
 //nodeData *head = NULL;
 //nodeData *thisNode = NULL;
@@ -61,9 +61,9 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
     pthread_mutex_unlock(&node_list_mutex); 
     if (payload->ttl > 0) {
         payload->ttl--;
-        buf =  my_malloc(payload_size);
+        buf =  calloc(1,payload_size);
         memcpy(buf, payload, payload_size);
-        tdata = my_malloc(sizeof(thread_data));
+        tdata = calloc(1,sizeof(thread_data));
         memcpy(tdata->ip, IP, 16);
         tdata->payload_size = payload_size;
         tdata->payload = buf;
@@ -91,8 +91,8 @@ void processTopologyRequest(int socket, topologyRequest *payload)
     char *ipAddrList;
     char ID[48];
     int numNodestoSend = 0;
-    buf = (char *)my_malloc(48 * (server_topology->num_of_nodes + 1)); 
-    ipAddrList = (char *)my_malloc(16 * num_of_nodes);
+    buf = (char *)calloc(1,48 * (server_topology->num_of_nodes + 1)); 
+    ipAddrList = (char *)calloc(1,16 * num_of_nodes);
     pthread_mutex_lock(&node_list_mutex);
     if (server_topology->node && server_topology->node->prev) {
         memcpy(ipAddrList, server_topology->node->prev, 16);
@@ -188,7 +188,7 @@ void sendTopologyResponse(int socket, int numOfNodes, char *buf)
 {
     int size = (sizeof(addDeleteNodePayload) + (numOfNodes * 48));
  
-    addDeleteNodePayload *payloadBuf = my_malloc(size);
+    addDeleteNodePayload *payloadBuf = calloc(1,size);
     
     payloadBuf->numOfNodes = numOfNodes;
     payloadBuf->flags = ADD_PAYLOAD | COMPLETE_PAYLOAD;
@@ -213,7 +213,7 @@ void sendTopologyJoinRequest(int socket)
     //int size = (sizeof(topologyRequest) + (numOfNodes * 48));
  
     topologyRequestPayload *payloadBuf = 
-                        my_malloc(sizeof(topolgyRequestPayload));
+                        calloc(1,sizeof(topolgyRequestPayload));
     
     payloadBuf->flags = ADD_NODE_REQUEST;
     memcpy(payloadBuf->ipAddr, myIP, 16);
@@ -240,7 +240,7 @@ void sendAddNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[48] )
     thread_data *my_data[5];
     pthread_t   thread[5];
     int threads_created = 0;
-    addDeleteNodePayload *payloadBuf = my_malloc(sizeof(addDeleteNodePayload) + ID_SIZE);  
+    addDeleteNodePayload *payloadBuf = calloc(1,sizeof(addDeleteNodePayload) + ID_SIZE);  
     payloadBuf->numOfNodes = 1;
     paylodBuf->flags |= (ADD_PAYLOAD | DELTA_PAYLOAD);
     payloadBuf->ttl = 0;
@@ -250,8 +250,8 @@ void sendAddNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[48] )
         threads_created = 0;
         for (i=0; i<5 && index < numOfNodesToSend; i++, index ++, threads_created++) {
             //my_data[i].ip[15] = 0;
-            my_data[i] = my_malloc(sizeof(thread_data) + ID_SIZE);
-            *(my_data[i]).payload = my_malloc(sizeof(ID));
+            my_data[i] = calloc(1,sizeof(thread_data) + ID_SIZE);
+            *(my_data[i]).payload = calloc(1,sizeof(ID));
             memcpy(*(my_data[i]).ip, IP, 16);
             IP++;
             *(my_data[i]).payload_size = (sizeof(addDeleteNodePayload) + ID_SIZE;  
@@ -285,7 +285,7 @@ void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[48] ,
     thread_data *my_data[5];
     pthread_t   thread[5];
     int threads_created = 0;
-    addDeleteNodePayload *payloadBuf = my_malloc(sizeof(addDeleteNodePayload) + ID_SIZE);  
+    addDeleteNodePayload *payloadBuf = calloc(1,sizeof(addDeleteNodePayload) + ID_SIZE);  
     payloadBuf->numOfNodes = 1;
     paylodBuf->flags |= (DELETE_PAYLOAD | DELTA_PAYLOAD);
     payloadBuf->ttl = ttl;
@@ -295,17 +295,17 @@ void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[48] ,
         threads_created = 0;
         for (i=0; i<5 && index < numOfNodesToSend; i++, index ++, threads_created++) {
             //my_data[i].ip[15] = 0;
-            my_data[i] = my_malloc(sizeof(thread_data) + ID_SIZE);
-            *(my_data[i]).payload = my_malloc(sizeof(ID));  
+            my_data[i] = calloc(1,sizeof(thread_data) + ID_SIZE);
+            *(my_data[i]).payload = calloc(1,sizeof(ID));  
             memcpy(*(my_data[i]).ip, IP, 16);
             IP++;
-            *(my_data[i]).payload_size = (sizeof(addDeleteNodePayload) + ID_SIZE;  
+            *(my_data[i]).payload_size = sizeof(addDeleteNodePayload) + ID_SIZE;  
             *(my_data[i]).msg_type = MSG_ADD_DELETE_NODE;
-            memcpy(*(my_data[i]).payload, ID, 48);
+            memcpy((*my_data[i]).payload, ID, 48);
             pthread_create(&thread[i], NULL, send_node_update_payload, *(my_data[i])); 
         }
         for (i=0 ; i < threads_created; i++) {
-            pthread_join(&thread[i],NULL);
+            pthread_join(thread[i],NULL);
         } 
     }
 }
