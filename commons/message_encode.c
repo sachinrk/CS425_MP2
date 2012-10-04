@@ -11,8 +11,8 @@
 /*Data structure used for marshalling */
 int marshalInfo[NUM_OF_PAYLOADS][MAX_ELEMENTS_PER_PAYLOAD][2] = 
 { {
-      {marshal_field_info(heartbeatPayload, heartbeatTimeStamp)
-      /*(int)(&(((heartbeatPayload*)0)->heartbeatTimeStamp)), sizeof(((heartbeatPayload*)0)->heartbeatTimeStamp)*/} ,
+      {marshal_field_info(heartbeatPayload, heartbeatTimeStamp)}
+      /*(int)(&(((heartbeatPayload*)0)->heartbeatTimeStamp)), sizeof(((heartbeatPayload*)0)->heartbeatTimeStamp)*/ ,
       {0,0}
   },/*HEARTBEAT PAYLOAD*/
   {
@@ -22,7 +22,7 @@ int marshalInfo[NUM_OF_PAYLOADS][MAX_ELEMENTS_PER_PAYLOAD][2] =
   {
       {marshal_field_info(topologyRequest, timestamp)
       /*(int)(&(((addNodeRequest*)0)->timestamp)), sizeof(((addNodeRequest*)0)->timestamp) */},
-      {0,0 } 
+      {0,0} 
   }/* ADD NODE REQUEST*/
 };
 

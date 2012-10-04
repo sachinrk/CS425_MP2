@@ -3,6 +3,9 @@
 neigbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS];
 extern struct Head_Node *server_topology;
 extern pthread_mutex_t node_list_mutex;
+extern myIP[16];
+
+
 //nodeData *head = NULL;
 //nodeData *thisNode = NULL;
 /*********************************************************
@@ -119,7 +122,7 @@ void processTopologyRequest(int socket, topologyRequest *payload)
 ** Arguments:
 ** ipAddr : IP Address.
 ***********************************************************/
-/*RC_t getIpAddr(char *IP)
+RC_t getIpAddr()
 {
     struct ifaddrs * ifAddrStruct=NULL;
     struct ifaddrs * ifa=NULL;
@@ -134,7 +137,7 @@ void processTopologyRequest(int socket, topologyRequest *payload)
             inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
             if (!strncmp(addressBuffer, "127.0.0.1", INET_ADDRSTRLEN)) {
                 printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer); 
-                strcpy(IP, addressBuffer);        
+                strcpy(myIP, addressBuffer);        
                 rc = RC_SUCCESS;
                 break;
             }
@@ -146,10 +149,10 @@ void processTopologyRequest(int socket, topologyRequest *payload)
    
    return rc;
     
-}*/
+}
 
 /*********************************************************
-** This is payload used to send request for topology 
+** This is function used to send request for topology 
 ** request
 ** 
 ** 
@@ -169,6 +172,29 @@ void sendTopologyResponse(int socket, int numOfNodes, char *buf)
     payloadBuf->ttl = 0;          //No need to propogate
     memcpy(payloadBuf->ipAddr, buf, numOfNodes * 16);
     sendPayload(socket, MSG_ADD_DELETE_NODE, payloadBuf, size);
+    free(payloadBuf); 
+}
+
+/*********************************************************
+** This is payload used to send request for topology 
+** request
+** 
+** 
+** Arguments:
+** socket     : socket on which the payload was received.
+** numOfNodes : Num of nodes in topology.
+** buf        : buffer having IP addresses of nodes.
+***********************************************************/
+void sendTopologyJoinRequest(int socket)
+{
+    //int size = (sizeof(topologyRequest) + (numOfNodes * 48));
+ 
+    topologyRequestPayload *payloadBuf = 
+                        malloc(sizeof(topolgyRequestPayload));
+    
+    payloadBuf->flags = ADD_NODE_REQUEST;
+    memcpy(payloadBuf->ipAddr, myIP, 16);
+    sendPayload(socket, MSG_TOPOLOGY_REQUEST, payloadBuf, size);
     free(payloadBuf); 
 }
 
