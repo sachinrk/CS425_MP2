@@ -1,5 +1,4 @@
 #include "list.h"
-#define ID_SIZE 48
 
 struct Head_Node * init_head(struct Node* node) {
 	struct Head_Node * tmp = NULL;
@@ -16,9 +15,9 @@ struct Node* init_node(char ID[ID_SIZE]) {
 	
 	tmp = (struct Node*) my_malloc ( sizeof(struct Node));
 	if(tmp != NULL) {
-		memcpy(tmp->timestamp, ID, 32);
+		memcpy(tmp->timestamp, ID, 4);
                 tmp->IP[15] = 0;
-                memcpy(tmp->timestamp, getIpAddres(ID), 32);
+                memcpy(tmp->timestamp, getIpAddres(ID), 4);
                 tmp->timestamp = ntohl(tmp->timestamp);  
 		tmp->next = tmp;
 		tmp->prev = tmp;	
