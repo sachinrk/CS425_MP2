@@ -10,7 +10,8 @@
 #include <arpa/inet.h>
 #include "../node/node_send_info.h"
 #include "../logging/log.h"
-
+#include "../failure_detector/failure_detector.h"
+#include <time.h>
 #define NUM_HEARTBEAT_NEIGHBOURS 2
 typedef struct {
     char   ipAddr[16];
@@ -24,6 +25,6 @@ void sendTopologyResponse(int socket, int numOfNodes, char *buf);
 void processHeartbeatPayload(heartbeatPayload *payload); 
 void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size) ;
 void sendTopologyJoinRequest(int socket);
-
-
+void sendAddNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[48] );
+void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[48], int ttl );
 #endif
