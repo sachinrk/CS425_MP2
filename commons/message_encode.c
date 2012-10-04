@@ -16,7 +16,7 @@ int marshalInfo[NUM_OF_PAYLOADS][MAX_ELEMENTS_PER_PAYLOAD][2] =
       {0,0}
   },/*HEARTBEAT PAYLOAD*/
   {
-      {marshal_field_info(nodeAddDelete)}
+  //  {addDeleteNodePayload, nodeAddDelete}
       {0,0},
   }, /*ADD DELETE NODE PAYLOAD*/
   {
@@ -110,6 +110,54 @@ int sendPayload(int socket, messageType msgType, char* payload, uint16_t length)
             bytesSent += rc;
         }
     }
+    DEBUG(("\nFreeing memory here\n"));
+    free(buf);
+    return RC_SUCCESS;    
+}
+
+int sendPayloadUDP(int socket, messageType msgType, char* payload, uint16_t length, const struct sockaddr *dest_addr) {
+
+    payloadBuf *buf;                                //Maximum payload we support as of now is 1000 bytes. 
+    int bytesSent = 0;
+    int rc = 0;
+    int type = msgType;
+    if (length > MAX_BUFFER_SIZE) {
+        DEBUG(("\nWarning :: Payload lentgth > 1024 bytes. Truncating to 1000 bytes\n")); //Anything above 1000 bytes will be truncated.
+        length = MAX_BUFFER_SIZE;
+    } 
+    buf = malloc(sizeof(payloadBuf) + length);
+    if (buf == NULL) {
+        return RC_FAILURE;
+    }
+    buf->type =  htons(type);
+    buf->length = htons(length + sizeof(payloadBuf));
+    perform_marshalling(msgType, payload);
+    memcpy(buf->payload, payload, length);
+    DEBUG(("\n Printing below\n"));
+    puts(payload);
+    puts(buf->payload);
+    
+  
+    int i;
+    
+    /*
+    for(i=0;i<length;i++) {
+      DEBUG(("%d,",*((char*)(buf + i))));
+    }
+    while (bytesSent < sizeof(payloadBuf) + length) {
+        rc = write(socket, (buf+bytesSent), (sizeof(payloadBuf) + length) - bytesSent);
+        if (rc < 0) {
+            DEBUG(("Socket connection closed while trying to write"));
+            return RC_SOCKET_WRITE_FAILURE;
+        }
+        else {
+            bytesSent += rc;
+        }
+    }
+    */
+    
+    sendto(socket, buf, sizeof(buf), 0, dest_addr, sizeof(*dest_addr));
+    
     DEBUG(("\nFreeing memory here\n"));
     free(buf);
     return RC_SUCCESS;    
