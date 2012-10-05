@@ -25,8 +25,8 @@ int main() {
 		sleep(1);
 	}
 	return 0;
-}*/
-
+}
+*/	
 
 struct Head_Node *server_topology;	
 
@@ -35,29 +35,38 @@ int main() {
 	int listenSocket, connectSocket, socketFlags, ret, clientSize;
 	struct sockaddr_in myAddress, clientAddress;
 	int i,j, bytes, numBytes, pid;
-	struct Head_Node *server_topology;	
+	server_topology = NULL;
+
+	log_init();
+	
+	server_topology = (struct Head_Node*)calloc(1, sizeof(struct Head_Node));
 	
 	payloadBuf *packet;
 	int rc;
 	
+	clientSize = sizeof(clientAddress);
 
 	//Create a listening socket..
-	if((listenSocket = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+	if((listenSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		printf("Error creating server socket. Dying ...\n");
 		return 0;
 	}
+	printf("Socket Created\n");
 	
 	//Init the sockaddr structure..
 	memset(&myAddress, 0, sizeof(myAddress));
 	myAddress.sin_family	  = AF_INET;
-	myAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+	myAddress.sin_addr.s_addr = INADDR_ANY;
 	myAddress.sin_port	  = htons(MY_PORT);
+	
 	
 	//Now bind the socket..
 	if((bind(listenSocket, (struct sockaddr *)&myAddress, sizeof(myAddress))) < 0) {
 		printf("Error binding socket. Dying...\n");		
 		return 0;
 	}
+
+	printf("Bind Created\n");
 	
 	//Listen on the socket for incoming connections..	
 	if((listen(listenSocket, 10)) < 0) {
@@ -65,11 +74,15 @@ int main() {
 		return 0;
 	}
 	
+	printf("Now listening\n");
 	for(;;) {
 		if ((connectSocket = accept(listenSocket, (struct sockaddr*)&clientAddress, &clientSize)) < 0) {
 			printf("Error accepting connection. Dying...\n");
 			return 0;
 		} 
+		
+		printf("Before printing\n");
+		
 		
 		printf("\nClient %d.%d.%d.%d connected\n", 
 				(clientAddress.sin_addr.s_addr & 0xFF),  
@@ -77,11 +90,13 @@ int main() {
 				(clientAddress.sin_addr.s_addr & 0xFF0000) >> 16,  
 				(clientAddress.sin_addr.s_addr & 0xFF000000) >> 24 
 			);
-
+		
 		//A client has connected.
 		//I need to tell the topology to the client
-	
+		
+		printf("Calling Message Decode\n");	
 		rc = message_decode(connectSocket, &packet);
+		printf("After message decode\n");
 		if(rc == RC_SUCCESS)
 			processPacket(connectSocket, packet);	
 	
@@ -89,5 +104,5 @@ int main() {
 		//First tell the nodes neigbors	
 		
 	}	
-}	
+}
 

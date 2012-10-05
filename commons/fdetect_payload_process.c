@@ -102,7 +102,7 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
 {
     int i;
     int offset = 0;
-    struct Node* tmp;
+    struct Node* tmp=NULL;
     struct Node* found = NULL;
     char *buf;
     char *ipAddrList;
@@ -110,18 +110,27 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
     int offset1 = 0;
     int numNodestoSend = 0;
     long timestamp =0;
-    buf = (char *)calloc(1,ID_SIZE * (server_topology->num_of_nodes + 1)); 
-    ipAddrList = (char *)calloc(1,16 * server_topology->num_of_nodes);
+    
     pthread_mutex_lock(&node_list_mutex);
-    if (server_topology->node && server_topology->node->prev) {
+    printf("\n1\n");
+    if (server_topology && server_topology->node && server_topology->node->prev) {
         memcpy(ipAddrList, server_topology->node->prev, 16);
         offset1 += 16;
+    	printf("\n2\n");
     }
-    memcpy(ipAddrList, ADMISSION_CONTACT_IP, 16);
-    offset1 += 16;
-    LOG(INFO, "Received topology request from node %s ", payload->ipAddr);
+    //memcpy(ipAddrList, ADMISSION_CONTACT_IP, 16);
+    //offset1 += 16;
+    //LOG(INFO, "Received topology request from node %s ", payload->ipAddr);
+    if(server_topology) {
+        buf = (char *)calloc(1,ID_SIZE * (server_topology->num_of_nodes + 1)); 
+        ipAddrList = (char *)calloc(1,16 * server_topology->num_of_nodes);
+	tmp = server_topology->node;
+    }
     
-    for (tmp = server_topology->node; tmp && tmp->next != server_topology->node; tmp++) {
+    
+    printf("\n3\n");
+    getchar();
+    for (; tmp && tmp->next != server_topology->node; tmp=tmp->next) {
         if (!memcmp(payload->ipAddr, tmp->IP, 15)) {
             found = tmp;
             
@@ -135,30 +144,39 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
         memcpy(buf+offset+4, (tmp->IP), 16);
         offset += 20;
     }
+    printf("\n4\n");
     if (payload->flags & ADD_NODE_REQUEST) {
         if (found) {
             LOG(ERROR, " Received duplicate node add request from %s ", payload->ipAddr);
             return;
         }
-        timestamp = htonl(payload->timestamp);
+        timestamp = ntohl(payload->timestamp);
+        printf("\n5\n");
+	if(server_topology == NULL || server_topology->num_of_nodes == 0)
+		buf = (char*)calloc(1, 16);
+
         memcpy(buf + offset, &timestamp, sizeof(timestamp));
         memcpy(buf + offset + sizeof(timestamp) , payload->ipAddr, 16);
         offset += 20;
-        timestamp = htonl(payload->timestamp);  
+        timestamp = ntohl(payload->timestamp);  
         memcpy(ID, &(timestamp), sizeof(timestamp)); 
         memcpy(ID + sizeof(timestamp), payload->ipAddr, 16);
+        printf("\n6\n");
         add_to_list(&server_topology, ID); 
         LOG(INFO, "Adding node %s to the group", payload->ipAddr);
         //strcpy(buf + offset, tmp->IP);
         //server_topology->num_of_nodes++; 
     }
     pthread_mutex_unlock(&node_list_mutex);
-    sendTopologyResponse(socket, server_topology->num_of_nodes, buf);  
+    printf("\n6\n");
+    sendTopologyResponse(socket, (server_topology ? server_topology->num_of_nodes : 0), buf);  
     if (payload->flags & ADD_NODE_REQUEST) {
         sendAddNodePayload(ipAddrList, server_topology->num_of_nodes-1 , ID);
+        printf("\n7\n");
     }
     free(ipAddrList);
     free(buf);
+    printf("\n8\n");
 }
 
 
@@ -213,15 +231,16 @@ RC_t getIpAddr()
 ***********************************************************/
 void sendTopologyResponse(int socket, int numOfNodes, char *buf)
 {
-    int size = (sizeof(addDeleteNodePayload) + (numOfNodes * 20));
+    int size = (sizeof(addDeleteNodePayload) + (numOfNodes * ID_SIZE));
  
     addDeleteNodePayload *payloadBuf = calloc(1,size);
-    
+    printf("\n Sending here \n"); 
     payloadBuf->numOfNodes = numOfNodes;
     payloadBuf->flags = ADD_PAYLOAD | COMPLETE_PAYLOAD;
     payloadBuf->ttl = 0;          //No need to propogate
-    memcpy(payloadBuf->ID, buf, numOfNodes * 20);
+    memcpy(payloadBuf->ID, buf, numOfNodes * ID_SIZE);
     sendPayload(socket, MSG_ADD_DELETE_NODE, payloadBuf, size);
+    printf("\n Sending response \n"); 
     free(payloadBuf); 
 }
 

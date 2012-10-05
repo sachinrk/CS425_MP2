@@ -15,6 +15,7 @@ int message_decode(int socket, payloadBuf **packet) {
     int size = sizeof(length);
     int bytesRead = 0;
     int rc;
+    printf("Before while loop\n");
     while (size > 0) {
         rc = read(socket, ptr, size);
         if (rc <= 0) {
@@ -25,12 +26,14 @@ int message_decode(int socket, payloadBuf **packet) {
         size -= bytesRead;
         ptr += bytesRead;    
     }
+    printf("\nAfter while loop\n");
     length = ntohs(length);                               // Get the length of the packet
+    printf("Length = %d", length);
+    getchar();
     size = length - sizeof(length);
     *packet = (payloadBuf *)malloc(length);
     (*packet)->length = length;
     ptr = (char*)((char*)(*packet) + sizeof(length));
-    
     while (size > 0) {
         rc = read(socket, ptr, size);
         if (rc < 0) {
