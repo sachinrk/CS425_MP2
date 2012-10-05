@@ -13,6 +13,7 @@
 #include "../failure_detector/failure_detector.h"
 #include <time.h>
 #define NUM_HEARTBEAT_NEIGHBOURS 2
+
 typedef struct {
     char   ipAddr[16];
     time_t latestTimeStamp;
