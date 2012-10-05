@@ -184,8 +184,9 @@ RC_t getIpAddr()
             // is a valid IP4 Address
             tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
             inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
-            if (!strncmp(addressBuffer, "127.0.0.1", INET_ADDRSTRLEN)) {
-                printf("%s IP Address %s\n", ifa->ifa_name, addressBuffer); 
+            if (strncmp(addressBuffer, "127.0.0.1", INET_ADDRSTRLEN)) {
+                LOG(INFO, "Node IP Address Obtained : %s", addressBuffer); 
+                printf("\nIP : %s\n", addressBuffer);
                 strcpy(myIP, addressBuffer);        
                 rc = RC_SUCCESS;
                 break;
@@ -236,15 +237,19 @@ void sendTopologyResponse(int socket, int numOfNodes, char *buf)
 ***********************************************************/
 void sendTopologyJoinRequest(int socket)
 {
-    int size = (sizeof(topologyRequestPayload) + 16);
+    int size = (sizeof(topologyRequestPayload));
     time_t t;
     long timestamp = time(&t);
+    printf("\n\nSize = %d",size);
+    LOG(INFO, "Sending Join Request to Admission %s:", "Contact");
+    printf("\nSending Join Request \n");
     topologyRequestPayload *payloadBuf = 
                         calloc(1,sizeof(topologyRequestPayload));
-    
+   
     payloadBuf->flags = ADD_NODE_REQUEST;
     payloadBuf->timestamp = timestamp;
     memcpy(payloadBuf->ipAddr, myIP, 16);
+    printf("\nSending Join Request %s\n", myIP);
     sendPayload(socket, MSG_TOPOLOGY_REQUEST, payloadBuf, size);
     free(payloadBuf); 
 }
