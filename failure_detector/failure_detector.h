@@ -24,4 +24,8 @@
 #define ADMISSION_CONTACT_IP "127.0.0.1"	//This is not decided yet
 #define ADMISSION_CONTACT_PORT 1101		//This is not decided yet
 #define TCP_LISTEN_PORT 1800
+
+int node_init();
+int node_exit(); 
+
 #endif

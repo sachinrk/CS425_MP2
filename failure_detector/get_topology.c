@@ -25,7 +25,7 @@ RC_t get_topology() {
 	master.sin_port		= htons(ADMISSION_CONTACT_PORT);
 
 	//First get my IPAddress so that we can get the pointer to it
-	numIPs = getMyIPAddrs(myIPs);
+	//numIPs = getMyIPAddrs(myIPs);
 	
 	if((connect(mSocket, (struct sockaddr *)&master, sizeof(master))) < 0) {
 		printf("Unable to connect with the Master. Dying...\n");

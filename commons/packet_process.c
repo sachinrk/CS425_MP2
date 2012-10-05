@@ -37,7 +37,7 @@ void processPacket(int socket, payloadBuf *packet) {
 		
 		case MSG_ADD_DELETE_NODE:
                      topology_version++;
-                     processAddDeleteNodePayload(packet->payload, packet->length);
+                     processNodeAddDeletePayload(packet->payload, packet->length);
                      break;
                 case MSG_TOPOLOGY_REQUEST:
                      processTopologyRequest(socket, packet->payload);

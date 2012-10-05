@@ -13,5 +13,5 @@
 #define MAX_PAYLOAD_SIZE 1000
 
 int message_decode(int socket, payloadBuf **packet);
-
+int message_decode_UDP(int socket, payloadBuf *packet, int *packetLen, struct sockaddr_in *fromAddr, ssize_t *fromAddrLen);
 #endif //__MESSAGE_DECODE__

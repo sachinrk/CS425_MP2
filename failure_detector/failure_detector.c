@@ -1,6 +1,6 @@
 #include "failure_detector.h"
 
-pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+extern pthread_mutex_t node_list_mutex;
 struct Head_Node *server_topology;
 struct Node* myself;
 int topology_version;
@@ -20,7 +20,7 @@ int node_init() {
 
 	//First talk to the master and get the topology info.
 	
-	if ( getIPAddr() != RC_SUCCESS) {
+	if ( getIpAddr() != RC_SUCCESS) {
 		LOG(ERROR, "Failed to get my IP address %s.", "");	
 	}
 	
@@ -135,3 +135,8 @@ int getMyIPAddrs(char myIPs[10][16]) {
 	return ifs;
 }
 */
+
+int node_exit() {
+
+}
+

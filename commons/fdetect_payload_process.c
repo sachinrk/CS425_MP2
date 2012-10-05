@@ -1,6 +1,6 @@
 #include "fdetect_payload_process.h"
 
-neigbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS];
+neighbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS];
 extern struct Head_Node *server_topology;
 extern pthread_mutex_t node_list_mutex;
 extern char myIP[16];

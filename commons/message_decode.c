@@ -50,9 +50,9 @@ int message_decode(int socket, payloadBuf **packet) {
     return RC_SUCCESS;
 }
  
-int message_decode_UDP(int socket, payloadBuf *packet, int *packetLen, sockaddr_in *fromAddr, ssize_t *fromAddrLen) {
+int message_decode_UDP(int socket, payloadBuf *packet, int *packetLen, struct sockaddr_in *fromAddr, ssize_t *fromAddrLen) {
 
-    *packetLen = recvfrom(socket, packet, 1000, 0, fromAddr, fromAddrLen); 
+    *packetLen = recvfrom(socket, packet, 1000, 0, (struct sockaddr * )fromAddr, fromAddrLen); 
 
     return RC_SUCCESS;
 }

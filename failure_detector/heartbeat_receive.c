@@ -37,7 +37,7 @@ void* heartbeat_receive(void* t) {
 	memset(&recvFromAddr, 0, sizeof(recvFromAddr));
 	myAddr.sin_family	= AF_INET;
 	myAddr.sin_port  	= htons(HEARTBEAT_RECV_PORT);
-	myAddr.sin_addr.s_addr	= htnl(INADDR_ANY);
+	myAddr.sin_addr.s_addr	= htonl(INADDR_ANY);
 	
 	pollfds[0].fd = recvFromSocket;
 	pollfds[0].events = POLLIN | POLLPRI;

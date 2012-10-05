@@ -2,6 +2,7 @@
 extern struct Head_Node *server_topology;
 pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t timestamp_mutex = PTHREAD_MUTEX_INITIALIZER;
+state_machine current_state = INIT;   
 
 void main()/*interact_with_user()*/
 {
@@ -11,8 +12,7 @@ void main()/*interact_with_user()*/
     char display_buf[600];
     char dislay_buf2[300];
     char user_input[10]; 
-    returnCode (*case1function)();    
-    state_machine current_state = INIT;   
+    int (*case1function)(void);    
     
     //pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
     //timestamp_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -85,7 +85,7 @@ void main()/*interact_with_user()*/
 
 void display_membership_list()
 {
-     clear();
+     system("clear");
      struct Node *tmp;
      printf("\nNode IP Address\t Node Timestamp\n*****************************************************************\n");
      pthread_mutex_lock(&node_list_mutex);    
@@ -94,7 +94,7 @@ void display_membership_list()
      }
      pthread_mutex_unlock(&node_list_mutex); 
      printf("\nPlease press any key to continue ...\n");
-     getch(); 
+     getchar(); 
 }
 
 

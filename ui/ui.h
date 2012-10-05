@@ -7,7 +7,7 @@
 #include "../commons/message_type.h"
 #include "../commons/list.h"
 #include <pthread.h>
-
+#include "../failure_detector/failure_detector.h"
 typedef enum {
     INIT,
     JOIN_REQUEST_SENT,
