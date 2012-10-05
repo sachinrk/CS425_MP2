@@ -22,9 +22,10 @@ void processHeartbeatPayload(heartbeatPayload *payload)
     int i; 
     pthread_mutex_lock(&timestamp_mutex);
     for (i = 0; i < NUM_HEARTBEAT_NEIGHBOURS; i++) {
+              LOG(INFO,"Received heartbeat from %s", payload->ip_addr); 
               if (!(strcmp(savedHeartbeat[i].ipAddr, payload->ip_addr))) {
                   time(&savedHeartbeat[i].latestTimeStamp);
-       }
+              }
     }
     pthread_mutex_unlock(&timestamp_mutex); 
 }
@@ -53,8 +54,21 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
     for (i = 0; i < payload->numOfNodes; i++) {
        if (payload->flags & DELETE_PAYLOAD) {
           remove_from_list(&server_topology, payload->ID[i]);
+          if (payload->flags & LEAVE_NOTIFICATION) {
+              LOG(INFO, "Node %s is voluntarily leaving the group", payload->ID[i]);
+          }
+          else if (payload->flags & LEAVE_NOTIFICATION) {
+              LOG(INFO, "Node %s has failed. Removing its entry", payload->ID[i]);
+ 
+               
+          }
        }else if (payload->flags & ADD_PAYLOAD) {
-           add_to_list(&server_topology, payload->ID[i]);   
+           LOG(INFO, "Node %s is being added as a member in the group", payload->ID[i]);
+           add_to_list(&server_topology, payload->ID[i]);             
+           pthread_mutex_lock(&timestamp_mutex);
+           strcpy(savedHeartbeat[0].ipAddr, payload->ID[i] + 4); 
+           pthread_mutex_unlock(&timestamp_mutex);
+
        }
     }
     memcpy(IP, myself->next->IP, 16); 
@@ -102,6 +116,7 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
     }
     memcpy(ipAddrList, ADMISSION_CONTACT_IP, 16);
     offset1 += 16;
+    LOG(INFO, "Received topology request from node %s ", payload->ipAddr);
     
     for (tmp = server_topology->node; tmp && tmp->next != server_topology->node; tmp++) {
         if (!memcmp(payload->ipAddr, tmp->IP, 15)) {
@@ -130,6 +145,7 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
         memcpy(ID, &(timestamp), sizeof(timestamp)); 
         memcpy(ID + sizeof(timestamp), payload->ipAddr, 16);
         add_to_list(&server_topology, ID); 
+        LOG(INFO, "Adding node %s to the group", payload->ipAddr);
         //strcpy(buf + offset, tmp->IP);
         //server_topology->num_of_nodes++; 
     }
@@ -285,7 +301,7 @@ void sendAddNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[ID_SIZE]
 ** numOfNodes : Num of nodes in topology.
 ** buf        : buffer having IP addresses of nodes.
 **********************************************************************/
-void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[ID_SIZE] , int ttl)
+void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[ID_SIZE] , int ttl, char flags)
 {
     char (*IP)[16];
     IP = ipAddrList;
@@ -297,6 +313,7 @@ void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[ID_SI
     addDeleteNodePayload *payloadBuf = calloc(1,sizeof(addDeleteNodePayload) + ID_SIZE);  
     payloadBuf->numOfNodes = 1;
     payloadBuf->flags |= (DELETE_PAYLOAD | DELTA_PAYLOAD);
+    payloadBuf->flags |= flags;
     payloadBuf->ttl = ttl;
     memcpy(payloadBuf->ID, ID, 20);
     payloadBuf->ID[0][20] = 0;

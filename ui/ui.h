@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include "../commons/message_type.h"
 #include "../commons/list.h"
+#include <pthread.h>
+
 typedef enum {
     INIT,
     JOIN_REQUEST_SENT,

@@ -4,7 +4,7 @@ extern struct Head_Node *server_topology;
 extern struct Node *myself;
 extern int topology_version;
 char myIPs[10][16];
-
+char myIP[16];
 RC_t get_topology() {	
 	struct sockaddr_in master;
 	struct Node* node;

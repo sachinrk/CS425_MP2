@@ -1,4 +1,8 @@
 #include "ui.h"
+extern struct Head_Node *server_topology;
+pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t timestamp_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 void main()/*interact_with_user()*/
 {
     char choice = 0;
@@ -9,6 +13,9 @@ void main()/*interact_with_user()*/
     char user_input[10]; 
     returnCode (*case1function)();    
     state_machine current_state = INIT;   
+    
+    //pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+    //timestamp_mutex = PTHREAD_MUTEX_INITIALIZER;
     do {
        system("clear");
        printf("\n***************************\nGroups-RUs Inc\nNode Membership Interface\n***************************\n\n");
@@ -60,6 +67,7 @@ void main()/*interact_with_user()*/
                         //display_membership_list();
                         break;
                    case 3:
+                        //node_exit();
                         exit(0);
                         break;
                    default:

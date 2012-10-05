@@ -25,6 +25,6 @@ void sendTopologyResponse(int socket, int numOfNodes, char *buf);
 void processHeartbeatPayload(heartbeatPayload *payload); 
 void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size) ;
 void sendTopologyJoinRequest(int socket);
-void sendAddNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[48] );
-void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[48], int ttl );
+void sendAddNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[ID_SIZE] );
+void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[ID_SIZE], int ttl, char flags );
 #endif

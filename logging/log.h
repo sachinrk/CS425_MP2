@@ -34,8 +34,9 @@ extern level log_level;
       pthread_mutex_lock(&log_mutex); \
       time(&timer); \
       tm_info = localtime(&timer); \
-      strftime(buffer, 30, "\n[%Y-%m-%d  %H:%M:%S ] ", tm_info); \
-      strcpy(buf,buffer); \
+      strftime(buffer, 30, "\n[%Y-%m-%d  %H:%M:%S ] ",tm_info); \
+      sprintf(buf,"%s", myIP); \
+      strcat(buf,buffer); \
       strcpy(buf1, __FILE__); \
       strcat(buf, buf1); \
       sprintf(buf1,"(%d) ", __LINE__); \

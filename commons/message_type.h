@@ -67,13 +67,13 @@ typedef struct
 {
   uint8_t numOfNodes;
   uint8_t flags;
-  uint8_t ttl;                                            //Indicates the number of nodes this message has to be forwarded to
   #define ADD_PAYLOAD           0x01
   #define DELETE_PAYLOAD        0x02
   #define LEAVE_NOTIFICATION    0x04
   #define NODE_FAILURE          0x08 
   #define DELTA_PAYLOAD         0x10                      //This bit is set if only the new node in the system is getting added  
   #define COMPLETE_PAYLOAD      0x20                      //This bit is set if set of all nodes is being sent. 
+  uint8_t ttl;                                            //Indicates the number of nodes this message has to be forwarded to
   char    ID[0][ID_SIZE];                             
 }addDeleteNodePayload;
 
