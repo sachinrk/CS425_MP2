@@ -11,7 +11,8 @@
 #include "../logging/log.h"
 #include "../commons/message_type.h"
 #include "../commons/fdetect_payload_process.h"
-
+#include <pthread.h>
+#define HEARTBEAT_RECV_PORT 1103 //This is not decided yet
 void* heartbeat_receive(void* t);
 
 #endif

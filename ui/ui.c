@@ -3,6 +3,7 @@ extern struct Head_Node *server_topology;
 extern pthread_mutex_t node_list_mutex;
 extern pthread_mutex_t timestamp_mutex;
 state_machine current_state = INIT;   
+pthread_mutex_t state_machine_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void main()/*interact_with_user()*/
 {
@@ -79,7 +80,7 @@ void main()/*interact_with_user()*/
           }
             
        }while(valid == 0);
-       getchar();
+       //getchar();
        system("clear"); 
     }while((choice-'0') != 3);
 }

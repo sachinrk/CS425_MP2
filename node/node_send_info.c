@@ -27,7 +27,7 @@ void* send_node_update_payload(void *tdata)
                 free(my_data);
                 pthread_exit(NULL);
         }
-        printf("IP : %s Unable to create TCP Socket. Dying... IP = %s\n", IP);
+        printf("IP : %s Unable to create TCP Socket. Dying...\n", IP);
         if((connect(sock, (struct sockaddr *) &nodeAddress,   sizeof(nodeAddress))) < 0) { 
                 //LOG(ERROR, "IP : %s Unable to connect with server %s . Dying ...\n", IP);
                 free(my_data->payload);

@@ -10,5 +10,6 @@
 #include "../commons/list.h"
 #include "../logging/log.h"
 #include <time.h>
+#include "heartbeat_receive.h"
 void* heartbeat_send(void* t);
 #endif 

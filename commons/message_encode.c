@@ -131,16 +131,22 @@ int sendPayloadUDP(int socket, messageType msgType, char* payload, uint16_t leng
     if (buf == NULL) {
         return RC_FAILURE;
     }
+    printf("\nLength in UDP Send : %d ", length);
     buf->type =  htons(type);
     buf->length = htons(length + sizeof(payloadBuf));
     perform_marshalling(msgType, payload);
     memcpy(buf->payload, payload, length);
-    DEBUG(("\n Printing below\n"));
+    DEBUG(("\n Printing below 1:%0x , 2:%0x : 3 :%0x \n", buf->payload[0], buf->payload[1], buf->payload[2]));
     puts(payload);
     puts(buf->payload);
     
-    sendto(socket, buf, sizeof(buf), 0, dest_addr, sizeof(*dest_addr));
-    
+    if((bytesSent = sendto(socket, buf, ntohs(buf->length), 0, dest_addr, sizeof(*dest_addr))) < 0)
+    {
+	printf("Send to failed");
+    }else{
+	printf("bytes sent = %d\n", bytesSent);
+    } 
+
     DEBUG(("\nFreeing memory here\n"));
     free(buf);
     return RC_SUCCESS;    

@@ -55,7 +55,11 @@ int message_decode(int socket, payloadBuf **packet) {
  
 int message_decode_UDP(int socket, payloadBuf *packet, int *packetLen, struct sockaddr_in *fromAddr, ssize_t *fromAddrLen) {
 
+    
     *packetLen = recvfrom(socket, packet, 1000, 0, (struct sockaddr * )fromAddr, fromAddrLen); 
+    packet->length = ntohs(packet->length);
+    packet->type = ntohs(packet->type);
+    printf("\n In message decode  length = %d \n", packet->length);
 
     return RC_SUCCESS;
 }

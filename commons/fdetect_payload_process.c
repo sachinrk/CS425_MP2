@@ -1,8 +1,9 @@
 #include "fdetect_payload_process.h"
 
 neighbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS];
+
 extern struct Head_Node *server_topology;
-//extern pthread_mutex_t node_list_mutex;
+pthread_mutex_t heartbeat_mutex = PTHREAD_MUTEX_INITIALIZER;
 char myIP[16];
 struct Node *myself;
 int topology_version = 0;
@@ -25,6 +26,7 @@ void processHeartbeatPayload(heartbeatPayload *payload)
     int i; 
     pthread_mutex_lock(&timestamp_mutex);
     for (i = 0; i < NUM_HEARTBEAT_NEIGHBOURS; i++) {
+              printf("Heartbeat Received Outside\n");
               //LOG(INFO,"Received heartbeat from %s", payload->ip_addr); 
               if (!(strcmp(savedHeartbeat[i].ipAddr, payload->ip_addr))) {
                   time(&savedHeartbeat[i].latestTimeStamp);
@@ -57,7 +59,12 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
     }
     for (i = 0; i < payload->numOfNodes; i++) {
        if (payload->flags & DELETE_PAYLOAD) {
-          remove_from_list(&server_topology, payload->ID[i]);
+           remove_from_list(&server_topology, payload->ID[i]);
+           pthread_mutex_lock(&timestamp_mutex);
+           strcpy(savedHeartbeat[0].ipAddr, myself->prev->IP); 
+           pthread_mutex_unlock(&timestamp_mutex);
+
+  
           if (payload->flags & LEAVE_NOTIFICATION) {
               //LOG(INFO, "Node %s is voluntarily leaving the group", payload->ID[i]);
           }
@@ -115,29 +122,38 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
     int offset1 = 0;
     int numNodestoSend = 0;
     long timestamp =0;
+    int visit = 0;
     
     pthread_mutex_lock(&node_list_mutex);
     printf("\n1\n");
-    if (server_topology && server_topology->node && server_topology->node->prev) {
-        memcpy(ipAddrList, server_topology->node->prev, 16);
+    if (server_topology && server_topology->node && server_topology->node->prev)    {
+        buf = (char *)calloc(1,ID_SIZE * (server_topology->num_of_nodes + 1)); 
+        ipAddrList = (char *)calloc(1,16 * server_topology->num_of_nodes);
+	tmp = server_topology->node;
+       
+        memcpy(ipAddrList, server_topology->node->prev->IP, 16);
         offset1 += 16;
+        
     	printf("\n2\n");
     }
     //memcpy(ipAddrList, ADMISSION_CONTACT_IP, 16);
     //offset1 += 16;
     ////LOG(INFO, "Received topology request from node %s ", payload->ipAddr);
-    if(server_topology) {
+    /*if(server_topology) {
         buf = (char *)calloc(1,ID_SIZE * (server_topology->num_of_nodes + 1)); 
         ipAddrList = (char *)calloc(1,16 * server_topology->num_of_nodes);
 	tmp = server_topology->node;
-    }
+    }*/
     
     
-    printf("\n3\n");
-    getchar();
-    for (; tmp && tmp->next != server_topology->node; tmp=tmp->next) {
+    //getchar();
+    for (; tmp && ((visit == 0)  || tmp != server_topology->node); tmp=tmp->next) {
+        visit = 1;
+        printf("\n\nLooping through : %s , searching for :%s", tmp->IP, payload->ipAddr);
         if (!memcmp(payload->ipAddr, tmp->IP, 15)) {
             found = tmp;
+            printf("\n3: Found ***********, IP :",payload->ipAddr);
+     
             
         }
         if (tmp->next != server_topology->node) {
@@ -152,13 +168,18 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
     printf("\n4\n");
     if (payload->flags & ADD_NODE_REQUEST) {
         if (found) {
-            //LOG(ERROR, " Received duplicate node add request from %s ", payload->ipAddr);
-            return;
+            timestamp = htonl(tmp->timestamp);
+            memcpy(ID, &timestamp, sizeof(tmp->timestamp));
+            memcpy(ID + sizeof(tmp->timestamp) , tmp->IP, 16);
+            remove_from_list(&server_topology, ID);
+            //LOG(ERROR, " Reincarnation of node %s ", payload->ipAddr);
+            //return;
         }
         timestamp = ntohl(payload->timestamp);
         printf("\n5\n");
 	if(server_topology == NULL || server_topology->num_of_nodes == 0) {
-	    buf = (char*)calloc(1, ID_SIZE);
+	    printf("\n Allocated memory*************************\n");
+            buf = (char*)calloc(1, ID_SIZE);
         }
 
         memcpy(buf + offset, &timestamp, sizeof(timestamp));
@@ -179,8 +200,8 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
     //printf("\n8......2-> %d\n",  server_topology->num_of_nodes );
     sendTopologyResponse(socket, (server_topology ? server_topology->num_of_nodes : 0), buf);  
     if (payload->flags & ADD_NODE_REQUEST) {
+        printf("\n7 Nodes : %d\n", server_topology->num_of_nodes);
         sendAddNodePayload(ipAddrList, server_topology->num_of_nodes-1 , ID);
-        printf("\n7\n");
     }
     if (ipAddrList) {
         free(ipAddrList);

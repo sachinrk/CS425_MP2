@@ -59,10 +59,10 @@ int node_init() {
 	}
 	
 	if (current_state == INIT && rc == RC_SUCCESS) {
-	       //pthread_mutex_lock(&state_machine_mutex);	
+	       pthread_mutex_lock(&state_machine_mutex);	
                current_state = TOPOLOGY_FORMED;
 	       printf("\nChanging state to Topo formed\n");
-               //pthread_mutex_unlock(&state_machine_mutex);
+               pthread_mutex_unlock(&state_machine_mutex);
 	} else {
 		//LOG(ERROR, "State is other than INIT. Can't be%s\n", "");
 		printf("From here, returning RC_FAILURE\n");
