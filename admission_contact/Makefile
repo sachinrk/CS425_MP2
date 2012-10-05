@@ -1,3 +1,4 @@
+#This is make file for admission contact
 
 $(CC) = gcc
 
