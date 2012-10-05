@@ -21,8 +21,8 @@
 #include "../logging/log.h"
 #include "../ui/ui.h"
 
-#define ADMISSION_CONTACT_IP "127.0.0.1"	//This is not decided yet
-#define ADMISSION_CONTACT_PORT 1101		//This is not decided yet
+#define ADMISSION_CONTACT_IP "192.168.2.6"	//This is not decided yet
+#define ADMISSION_CONTACT_PORT 2000		//This is not decided yet
 #define TCP_LISTEN_PORT 1800
 
 int node_init();

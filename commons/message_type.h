@@ -81,7 +81,7 @@ typedef struct
 {
   uint8_t flags;
   #define ADD_NODE_REQUEST      0x01
-  long timestamp;
+  uint32_t timestamp;
   char ipAddr[16]; 
 }topologyRequestPayload;
 
