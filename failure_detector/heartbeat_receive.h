@@ -9,6 +9,8 @@
 #include <sys/poll.h>
 #include "../commons/list.h"
 #include "../logging/log.h"
+#include "../commons/message_type.h"
+#include "../commons/fdetect_payload_process.h"
 
 void* heartbeat_receive(void* t);
 

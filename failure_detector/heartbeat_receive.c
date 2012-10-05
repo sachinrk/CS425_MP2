@@ -4,7 +4,7 @@ extern struct Head_Node *server_topology;
 extern pthread_mutex_t node_list_mutex;
 extern struct Node* myself;
 extern int topology_version;
-
+extern neighbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS];
 #define HEARTBEAT_RECV_PORT 1103 //This is not decided yet
 
 void* heartbeat_receive(void* t) {
@@ -22,9 +22,12 @@ void* heartbeat_receive(void* t) {
 	unsigned ttl = 4;
 	char recvFromNodeID[20];
 	uint32_t ntohltimestamp;
-
+	payloadBuf *packet = (payloadBuf*)malloc(1000);
+	uint32_t packetLen;
 	struct pollfd pollfds[1];
 	int rv;
+	int heartbeatNotReceived;
+	ssize_t recvFromAddrLen;
 			
 	char *IPList, *ptr;
 	int numNodesToSend, i, j;
@@ -65,47 +68,26 @@ void* heartbeat_receive(void* t) {
 		//either when a heartbeat arrives or when a timeout has occurred. Exactly what we need here. 
 		
 		rv = poll(pollfds, 1, 2000);
-		
-		if(rv == -1) { //timeout has occurred. I did not receive 5 consecutive heartbeats from my recvfrom node.
-			//1) Tell the members that my predecessor is dead
-			//TODO
-			
-			numNodesToSend = server_topology->num_of_nodes / ttl;
-		
-			if (numNodesToSend >= 1) {
-				IPList = (char*)malloc(numNodesToSend * 16);
-				memset(IPList, 0, numNodesToSend * 16);
-				ptr = IPList;
-				nodePtr = myself->prev->prev;
-
-				for(i=0;i<numNodesToSend;i++) {
-					strcpy(ptr, nodePtr->IP);
-					ptr += 16;
-
-					for(j=0;j<ttl;j++) nodePtr = nodePtr->prev;
-				}
-				sendDeleteNodePayload(IPList,numNodesToSend, recvFromNodeID, ttl);
-			}
+		heartbeatNotReceived = 0;
 	
-			//2) Delete the recvFromNode from the topology I maintain. 
-			//Grab mutex
+		if(rv == -1) { //timeout has occurred. I did not receive 5 consecutive heartbeats from my recvfrom node.
+			heartbeatNotReceived = 1;
+		} else if (pollfds[0].revents & (POLLIN | POLLPRI)){ //Something received. Check if it is heartbeat.
+			
+			if(RC_SUCCESS == message_decode_UDP(recvFromSocket, packet, &packetLen, &recvFromAddr, &recvFromAddrLen)) {
+				processPacket(recvFromSocket, packet);
+			}
+			
+			if((time(NULL) - savedHeartbeat[0].latestTimeStamp) > 2) {
+				heartbeatNotReceived = 1;
+			}	
+		}
+		
+		if(heartbeatNotReceived) {
+			sendDeleteNotification(NODE_FAILURE, recvFromNodeID, ttl);	
 			pthread_mutex_lock(&node_list_mutex);
 			remove_from_list(&server_topology, recvFromNode->IP);
 			pthread_mutex_unlock(&node_list_mutex);
-			//Relese mutex
-			
-			//3) Update the topology_version. my_version will catch up.
-			//topology_version++;
-
-		} else if (pollfds[0].revents & (POLLIN | POLLPRI)){
-			//Heartbeat received. Now do a recvfrom and check 
-			//if the heartbeat is from the recvfrom node or someone else. 
-			//This can happen briefly during transitioning. It shoud NOT happen continuously for a long time.
-			
-			//TODO
-			//recvfrom();
-		} else {
-			LOG(ERROR, "I shouldn't be here.%s", "");
-		}	
+		}
 	}
 }

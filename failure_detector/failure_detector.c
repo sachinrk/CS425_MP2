@@ -66,6 +66,32 @@ int node_init() {
 	return RC_SUCCESS;
 }
 
+int sendDeleteNotification(uint8_t reason, char nodeID[20], int ttl) {
+	int numNodesToSend;
+	char *IPList, *ptr;
+	int i,j;
+	struct Node* nodePtr;
+		
+	numNodesToSend = server_topology->num_of_nodes / ttl;
+		
+	if (numNodesToSend >= 1) {
+		IPList = (char*)malloc(numNodesToSend * 16);
+		memset(IPList, 0, numNodesToSend * 16);
+		ptr = IPList;
+		nodePtr = myself->prev->prev;
+		pthread_mutex_lock(&node_list_mutex);
+		for(i=0;i<numNodesToSend;i++) {
+			strcpy(ptr, nodePtr->IP);
+			ptr += 16;
+			for(j=0;j<ttl;j++) nodePtr = nodePtr->prev;
+		}
+		pthread_mutex_unlock(&node_list_mutex);
+		sendDeleteNodePayload(IPList,numNodesToSend, nodeID, ttl, reason);
+	}
+
+	sendDeleteNodePayload(ADMISSION_CONTACT_IP, 1, nodeID, 1, reason);
+
+}
 
 /*
 int getMyIPAddrs(char myIPs[10][16]) {

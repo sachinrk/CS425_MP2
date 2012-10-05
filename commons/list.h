@@ -21,11 +21,6 @@ struct Head_Node {
  
 };
 
-typedef struct {
-	char ipAddr[16];
-	time_t lastTimeStamp;
-}neighbourHeartbeat;
-
 struct Head_Node * init_head(struct Node*);
 struct Node* init_node(char [16]);
 int remove_from_list(struct Head_Node **, char [16]);

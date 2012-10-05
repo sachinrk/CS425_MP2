@@ -137,25 +137,6 @@ int sendPayloadUDP(int socket, messageType msgType, char* payload, uint16_t leng
     puts(payload);
     puts(buf->payload);
     
-  
-    int i;
-    
-    /*
-    for(i=0;i<length;i++) {
-      DEBUG(("%d,",*((char*)(buf + i))));
-    }
-    while (bytesSent < sizeof(payloadBuf) + length) {
-        rc = write(socket, (buf+bytesSent), (sizeof(payloadBuf) + length) - bytesSent);
-        if (rc < 0) {
-            DEBUG(("Socket connection closed while trying to write"));
-            return RC_SOCKET_WRITE_FAILURE;
-        }
-        else {
-            bytesSent += rc;
-        }
-    }
-    */
-    
     sendto(socket, buf, sizeof(buf), 0, dest_addr, sizeof(*dest_addr));
     
     DEBUG(("\nFreeing memory here\n"));

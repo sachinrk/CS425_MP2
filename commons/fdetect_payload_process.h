@@ -13,10 +13,11 @@
 #include "../failure_detector/failure_detector.h"
 #include <time.h>
 #define NUM_HEARTBEAT_NEIGHBOURS 2
+
 typedef struct {
     char   ipAddr[16];
     time_t latestTimeStamp;
-}neigbourHeartbeat;
+}neighbourHeartbeat;
 
 
 //extern neigbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS]; 
@@ -26,5 +27,5 @@ void processHeartbeatPayload(heartbeatPayload *payload);
 void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size) ;
 void sendTopologyJoinRequest(int socket);
 void sendAddNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[48] );
-void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[48], int ttl );
+void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[48], int ttl, uint8_t reason);
 #endif
