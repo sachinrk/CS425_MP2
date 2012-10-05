@@ -3,8 +3,9 @@
 neighbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS];
 extern struct Head_Node *server_topology;
 //extern pthread_mutex_t node_list_mutex;
-extern char myIP[16];
-extern struct Node *myself;
+char myIP[16];
+struct Node *myself;
+int topology_version = 0;
 
 pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t timestamp_mutex = PTHREAD_MUTEX_INITIALIZER;

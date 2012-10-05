@@ -2,9 +2,9 @@
 
 extern pthread_mutex_t node_list_mutex;
 struct Head_Node *server_topology;
-struct Node* myself;
+extern struct Node* myself;
 int topology_version;
-char myIP[16];
+extern char myIP[16];
 
 extern pthread_mutex_t state_machine_mutex;
 extern state_machine current_state;
