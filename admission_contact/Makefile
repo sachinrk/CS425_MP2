@@ -7,7 +7,7 @@ debug : CC += -DDEBUG_ENABLE -g
 debug : admission_contact
 
 admission_contact : file_map.o message_decode.o message_encode.o packet_process.o send_file.o fdetect_payload_process.o list.o log.o node_send_info.o list.o node_send_info.o
-	$(CC) ../commons/file_map.o ../commons/message_decode.o ../commons/message_encode.o ../commons/send_file.o ../commons/packet_process.o ../commons/fdetect_payload_process.o ../commons/list.o -o admission_contact.o ../logging/log.o ../node/node_send_info.o admission_contact.c -pthread 
+	$(CC) ../commons/file_map.o ../commons/message_decode.o ../commons/message_encode.o ../commons/send_file.o ../commons/packet_process.o ../commons/fdetect_payload_process.o ../commons/list.o -o admission_contact ../logging/log.o ../node/node_send_info.o admission_contact.c -pthread 
 
 file_map.o : ../commons/file_map.c
 	$(CC) -c ../commons/file_map.c -o ../commons/file_map.o
@@ -38,4 +38,4 @@ node_send_info.o : ../node/node_send_info.c
 
 
 clean: 
-	rm -rf ../commons/*.o dgrep_server 
+	rm -rf ../commons/*.o admission_contact 
