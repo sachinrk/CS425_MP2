@@ -1,7 +1,7 @@
 #include "ui.h"
 extern struct Head_Node *server_topology;
-pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t timestamp_mutex = PTHREAD_MUTEX_INITIALIZER;
+extern pthread_mutex_t node_list_mutex;
+extern pthread_mutex_t timestamp_mutex;
 state_machine current_state = INIT;   
 
 void main()/*interact_with_user()*/

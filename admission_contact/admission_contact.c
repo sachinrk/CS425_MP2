@@ -60,7 +60,7 @@ int main() {
 	}
 	
 	//Listen on the socket for incoming connections..	
-	if((listen(listenSocket, LISTEN_Q)) < 0) {
+	if((listen(listenSocket, 10)) < 0) {
 		printf("Error listening on socket. Dying...\n");
 		return 0;
 	}
