@@ -5,7 +5,7 @@ struct Head_Node * init_head(struct Node* node) {
 	
 	tmp = (struct Head_Node*)calloc(1, sizeof(struct Head_Node));
 	if(tmp != NULL)
-		tmp->node = node;
+	    tmp->node = node;
 	
 	return tmp;
 }
@@ -16,6 +16,7 @@ struct Node* init_node(char ID[ID_SIZE]) {
 	tmp = (struct Node*) calloc (1, sizeof(struct Node));
 	if(tmp != NULL) {
 		memcpy(&tmp->timestamp, ID, 4);
+                memcpy(tmp->IP, ID + 4, 16);
                 tmp->IP[15] = 0;
                 tmp->timestamp = ntohl(tmp->timestamp);  
 		tmp->next = tmp;
@@ -29,11 +30,21 @@ int add_to_list(struct Head_Node ** head, char ID[ID_SIZE]) {
 	struct Node * tmp;
 	
 	tmp = init_node(ID);
-	if ( *head == NULL ) {
-		*head = init_head(tmp);
+        printf("\nIn adding before, head : %lu\n", (long)(*head));
+        getchar();
+        if ( *head == NULL ) {
+	        
+	       printf("\nIn adding 1\n");
+        	
+                *head = init_head(tmp);
 		(*head)->num_of_nodes = 1;
+                     
+                printf("\nReturning :%d\n", (*head)->num_of_nodes);
+
                 return 0;
 	} else {
+                
+                printf("\nIn adding %lu \n",(long)(*head));
 
 		tmp->next = (*head)->node;
 		tmp->prev = (*head)->node->prev;
@@ -98,12 +109,23 @@ int remove_from_list(struct Head_Node **head, char ID[ID_SIZE]) {
 
 RC_t delete_all_nodes(struct Head_Node **head)
 {
-     struct Node *tmp = (*head)->node;
-     struct Node *tmp1;
-     while(tmp && tmp != (*head)->node) {
+     struct Node *tmp = NULL;
+     struct Node *tmp1 = NULL;
+     int numOfNodes = 0;
+     int index =0;
+     
+     printf("\ndelete_all_nodes *head = %lu\n", *head); 
+    	
+     if (*head != NULL) {
+         tmp = (*head)->node;
+         numOfNodes = (*head)->num_of_nodes; 
+     }
+     
+     while(index < numOfNodes && tmp) {
          tmp1 = tmp->next;
          free(tmp);
-         tmp1 = tmp;
+         tmp = tmp1;
+         index++;  
      }    
-     (*head)->node = NULL;
+     (*head) = NULL;
 }

@@ -11,7 +11,7 @@ RC_t join_topology() {
 	struct Node* next, prev;	
 	next = prev = NULL;
 	
-	LOG(INFO, "Joining the topology now...");
+	//LOG(INFO, "Joining the topology now...");
 	
 	if( myself != NULL ) { 		
 		next = myself->next;
@@ -19,19 +19,19 @@ RC_t join_topology() {
 	}
 	
 	if((next == NULL) || (prev == NULL)) {
-		LOG(ERROR, "next or prev is NULL. It can't be. Check");
+		//LOG(ERROR, "next or prev is NULL. It can't be. Check");
 		return RC_FAILURE;
 	}
 
 	if( tell(next) /*that I've joined */ != RC_SUCCESS ) {
-		LOG(ERROR, "Could not tell next that I will send him heartbeats");
+		//LOG(ERROR, "Could not tell next that I will send him heartbeats");
 	}
 	
 	if(next != prev) {
 		if(tell(prev) /* that I've joined */ != RC_SUCCESS) 
-			LOG(ERROR, "Could not tell prev that he has to send me ");
+			//LOG(ERROR, "Could not tell prev that he has to send me ");
 	} 
-	else LOG(INFO, "Next and Prev are the same. We are good");
+	else //LOG(INFO, "Next and Prev are the same. We are good");
 
 	return RC_SUCCESS; //This means that we've joined the topology successfully
 }
@@ -54,7 +54,7 @@ RC_t tell(struct Node* node_ptr) {
 	node_struct.sin_port		= htons(NODE_LISTENER_PORT);
 	
 	if((connect(mSocket, (struct sockaddr *)&node_struct, sizeof(node_struct))) < 0) {
-		LOG(ERROR, "Unable to connect with the node_struct. Dying...\n");
+		//LOG(ERROR, "Unable to connect with the node_struct. Dying...\n");
 	}
 	
 	//TODO

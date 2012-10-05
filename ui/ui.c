@@ -79,6 +79,7 @@ void main()/*interact_with_user()*/
           }
             
        }while(valid == 0);
+       getchar();
        system("clear"); 
     }while((choice-'0') != 3);
 }

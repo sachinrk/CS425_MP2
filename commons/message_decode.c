@@ -31,7 +31,7 @@ int message_decode(int socket, payloadBuf **packet) {
     printf("Length = %d", length);
     getchar();
     size = length - sizeof(length);
-    *packet = (payloadBuf *)malloc(length);
+    *packet = (payloadBuf *)calloc(1, length);
     (*packet)->length = length;
     ptr = (char*)((char*)(*packet) + sizeof(length));
     while (size > 0) {

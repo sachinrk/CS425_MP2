@@ -39,7 +39,7 @@ RC_t get_topology() {
 	sendTopologyJoinRequest(mSocket);
                 
 	rc = message_decode(mSocket,&packet);
-	printf("\nAfter message decode\n");	
+	printf("\nAfter message decode, packet : %lu\n", (long)packet);	
 
         processPacket(mSocket, packet);
 	
@@ -49,21 +49,26 @@ RC_t get_topology() {
 	//Set the topology version received from master.
 	//Get a pointer to the node containing my IP. Set it to *myself.
 	
+	printf("\nIP = %s\n", myIP);
 	nodeFound = 0;
 	node = server_topology->node;
 	do {
 		
 		if(!strcmp(node->IP, myIP)) {
 		    nodeFound = 1;
+		    printf("\nFound. Setting myself\n");
 		    break;	
-                }					
-		node = node->next;	
+                }
+		printf("Node IP = %s", node->IP);					
+		node = node->next;
+	
 	}while(node != server_topology->node);
 	
 	if(nodeFound)	
 		myself = node;
 	else { 
-		LOG(ERROR, "My IP not found in server topology%s\n","");
+		//LOG(ERROR, "My IP not found in server topology%s\n","");
+		printf("My IP node found in server_topology");
 		return RC_FAILURE;	
 	}
 	//By this time, topology is formed and is present in the server_topology pointer

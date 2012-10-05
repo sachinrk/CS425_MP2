@@ -85,7 +85,8 @@ void processPacket(int socket, payloadBuf *packet) {
 		case MSG_EXECUTE_SCRIPT :
 		     eSPayload = (executeScriptPayload *)(packet->payload);
 		     int result=-1;
-	
+			
+		     printf("Am I coming here??\n");	
  	   	     sprintf(command, "ls %s", eSPayload->scriptName);
                      result = system(command);
                      strcpy(fileName, "error_file.txt");

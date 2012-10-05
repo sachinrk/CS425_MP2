@@ -3,7 +3,7 @@ $(CC) = gcc
 
 all :  admission_contact
 
-debug : CC += -DDEBUG_ENABLE -g
+debug : CC += -DDEBUG_ENABLE -ggdb
 debug : admission_contact
 
 admission_contact : file_map.o message_decode.o message_encode.o packet_process.o send_file.o fdetect_payload_process.o list.o log.o node_send_info.o list.o node_send_info.o
@@ -38,4 +38,4 @@ node_send_info.o : ../node/node_send_info.c
 
 
 clean: 
-	rm -rf ../commons/*.o admission_contact 
+	rm -rf core ../commons/*.o admission_contact 

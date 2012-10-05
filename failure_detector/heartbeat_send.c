@@ -40,6 +40,7 @@ void* heartbeat_send(void* t) {
 		//send the heartbeat from here every 400 msec
 		//TODO add a function to actually send the heartbeat here
 		strcpy(hbPayload->ip_addr, myself->IP);
+		//printf("\nSending Heartbeat\n");
 		sendPayloadUDP(sendToSocket,MSG_HEARTBEAT,hbPayload,sizeof(hbPayload),&sendToAddr);
 		usleep(400 * 1000); 	
 	}

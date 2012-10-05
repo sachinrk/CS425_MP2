@@ -1,7 +1,7 @@
 #include "failure_detector.h"
 
 extern pthread_mutex_t node_list_mutex;
-struct Head_Node *server_topology;
+struct Head_Node *server_topology = NULL;
 extern struct Node* myself;
 int topology_version;
 extern char myIP[16];
@@ -21,11 +21,11 @@ int node_init() {
 	//First talk to the master and get the topology info.
 	
 	if ( getIpAddr() != RC_SUCCESS) {
-		LOG(ERROR, "Failed to get my IP address %s.", "");	
+		//LOG(ERROR, "Failed to get my IP address %s.", "");	
 	}
 	
-	if(get_topology() == RC_SUCCESS) {
-		LOG(INFO, "Get topology successful%s\n","");
+	if( (rc = get_topology()) == RC_SUCCESS) {
+		//LOG(INFO, "Get topology successful%s\n","");
 		printf("Get topology successful\n");
 
 		//if ( join_topology() == RC_SUCCESS ) {
@@ -36,7 +36,8 @@ int node_init() {
 			pthread_create(&send_thread, NULL, heartbeat_send, (void*)0);
 			pthread_create(&receive_thread, NULL, heartbeat_receive, (void*)0);
 			pthread_create(&listen_thread, NULL, topology_update, (void*)0);
-	
+			
+			printf("Threads created\n");	
 			//I still need to tell others, if there are any, that I've joined. I've told to prev and next in the join_topology()
 			node = myself->next->next;
 			
@@ -47,7 +48,7 @@ int node_init() {
 			//	node = node->next) {
 
 			//	if( tell(node) /*that I've joined*/ != RC_SUCCESS ) {
-			//		LOG(ERROR, "Failed to convey topology to node %s", node->IP);
+			//		//LOG(ERROR, "Failed to convey topology to node %s", node->IP);
 			//	}
 			//}
 	
@@ -60,9 +61,11 @@ int node_init() {
 	if (current_state == INIT && rc == RC_SUCCESS) {
 	       //pthread_mutex_lock(&state_machine_mutex);	
                current_state = TOPOLOGY_FORMED;
+	       printf("\nChanging state to Topo formed\n");
                //pthread_mutex_unlock(&state_machine_mutex);
 	} else {
-		LOG(ERROR, "State is other than INIT. Can't be%s\n", "");
+		//LOG(ERROR, "State is other than INIT. Can't be%s\n", "");
+		printf("From here, returning RC_FAILURE\n");
                 return RC_FAILURE;
 	}
 

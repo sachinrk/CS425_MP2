@@ -1,7 +1,7 @@
 #include "admission_contact.h"
 
 #define IP_FILE_PATH "./IPs"
-
+extern char myIp[16];
 /*
 //Iterate over IPs file and get the topology
 int main() {
@@ -38,8 +38,8 @@ int main() {
 	server_topology = NULL;
 
 	log_init();
-	
-	server_topology = (struct Head_Node*)calloc(1, sizeof(struct Head_Node));
+        getIpAddr();	
+	//server_topology = (struct Head_Node*)calloc(1, sizeof(struct Head_Node));
 	
 	payloadBuf *packet;
 	int rc;
@@ -100,8 +100,10 @@ int main() {
 		if(rc == RC_SUCCESS)
 			processPacket(connectSocket, packet);	
 	
+		
 		//Now I need to tell other that a new node is about to join. 
 		//First tell the nodes neigbors	
+		close(connectSocket);
 		
 	}	
 }

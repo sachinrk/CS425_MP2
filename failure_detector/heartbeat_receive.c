@@ -47,7 +47,7 @@ void* heartbeat_receive(void* t) {
 		//I may have to start receiving from a new node because... 
 		//1) it was just added to the topology as my predecessor
 		//2) my predecessor went down and is not communicating. 
-		
+	        printf ("\n\nIn hearbeat here \n\n");	
 		if( my_version < topology_version ) {
 			my_version = topology_version;
 			if( (recvFromNode == NULL) || strcmp(recvFromNode->IP, myself->prev->IP) ) {
@@ -68,6 +68,7 @@ void* heartbeat_receive(void* t) {
 		//either when a heartbeat arrives or when a timeout has occurred. Exactly what we need here. 
 		
 		rv = poll(pollfds, 1, 2000);
+		printf("Awake from POLL rv = %d\n", rv);
 		heartbeatNotReceived = 0;
 	
 		if(rv == -1) { //timeout has occurred. I did not receive 5 consecutive heartbeats from my recvfrom node.

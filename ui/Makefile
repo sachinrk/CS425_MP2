@@ -51,6 +51,6 @@ file_map.o : ../commons/file_map.c
 topology_update.o : ../failure_detector/topology_update.c
 	$(CC) -c ../failure_detector/topology_update.c -o ../failure_detector/topology_update.o
 clean: 
-	rm -rf ../commons/*.o ui ../failure_detector/*.o ../logging/*.o ../node/*.o
+	rm -rf core ../commons/*.o ui ../failure_detector/*.o ../logging/*.o ../node/*.o
 
 

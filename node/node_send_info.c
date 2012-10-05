@@ -20,14 +20,16 @@ void* send_node_update_payload(void *tdata)
         nodeAddress.sin_addr.s_addr   = inet_addr(IP);
         nodeAddress.sin_port          = htons(TCP_LISTEN_PORT);
 
-        if((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
-                LOG(ERROR, "IP : %s Unable to create TCP Socket. Dying...\n", IP);
+        if((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+                //LOG(ERROR, "IP : %s Unable to create TCP Socket. Dying...\n", IP);
+                printf("IP : %s Unable to create TCP Socket. Dying...\n", IP);
                 free(my_data->payload);
                 free(my_data);
                 pthread_exit(NULL);
         }
+        printf("IP : %s Unable to create TCP Socket. Dying... IP = %s\n", IP);
         if((connect(sock, (struct sockaddr *) &nodeAddress,   sizeof(nodeAddress))) < 0) { 
-                LOG(ERROR, "IP : %s Unable to connect with server %s . Dying ...\n", IP);
+                //LOG(ERROR, "IP : %s Unable to connect with server %s . Dying ...\n", IP);
                 free(my_data->payload);
                 free(my_data);
                 pthread_exit(NULL);
