@@ -16,7 +16,7 @@
 typedef struct {
     char   ipAddr[16];
     time_t latestTimeStamp;
-}neigbourHeartbeat;
+}neighbourHeartbeat;
 
 
 //extern neigbourHeartbeat savedHeartbeat[NUM_HEARTBEAT_NEIGHBOURS]; 
