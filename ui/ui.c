@@ -14,6 +14,7 @@ void main()/*interact_with_user()*/
     char user_input[10]; 
     int (*case1function)(void);    
     
+    log_init();
     //pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
     //timestamp_mutex = PTHREAD_MUTEX_INITIALIZER;
     do {

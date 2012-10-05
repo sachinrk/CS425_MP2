@@ -90,6 +90,8 @@ int sendPayload(int socket, messageType msgType, char* payload, uint16_t length)
     }
     buf->type =  htons(type);
     buf->length = htons(length + sizeof(payloadBuf));
+    printf("\n Before marshalling \n");
+    printf("\n After marshalling \n");
     perform_marshalling(msgType, payload);
     memcpy(buf->payload, payload, length);
     DEBUG(("\n Printing below\n"));

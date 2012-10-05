@@ -14,11 +14,12 @@ RC_t get_topology() {
 
 	printf("Contacting admission control to join group\n");
 	
-	if((mSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
+	if((mSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
 		printf("Unable to create socket. Dying...\n");
-		exit(0);
+		//exit(0);
+                return RC_FAILURE;
 	}
-	
+        printf("\nAfter socket\n");	
 	memset(&master, 0, sizeof(master));
 	master.sin_family 	= AF_INET;
 	master.sin_addr.s_addr 	= inet_addr(ADMISSION_CONTACT_IP);
@@ -28,14 +29,19 @@ RC_t get_topology() {
 	//numIPs = getMyIPAddrs(myIPs);
 	
 	if((connect(mSocket, (struct sockaddr *)&master, sizeof(master))) < 0) {
-		printf("Unable to connect with the Master. Dying...\n");
-	}
+		printf("Unable to connect with the Master. Dying...\nPress any key to continue");
+	        getchar();
+                return RC_FAILURE;
+        }
 		
 	//Tell the master I want to join the topology
 	
 	sendTopologyJoinRequest(mSocket);
+                
 	rc = message_decode(mSocket,&packet);
-	processPacket(mSocket, packet);
+	printf("\nAfter message decode\n");	
+
+        processPacket(mSocket, packet);
 	
 	//process the incoming packet	
 			
@@ -46,12 +52,11 @@ RC_t get_topology() {
 	nodeFound = 0;
 	node = server_topology->node;
 	do {
-		for(i=0; i<numIPs; i++) {
-			if(!strcmp(node->IP, myIPs[i])) {
-				nodeFound = 1;
-				break;	
-			}
-		}
+		
+		if(!strcmp(node->IP, myIP)) {
+		    nodeFound = 1;
+		    break;	
+                }					
 		node = node->next;	
 	}while(node != server_topology->node);
 	

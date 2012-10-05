@@ -1,5 +1,6 @@
 #include "node_send_info.h"
 extern char myIP[16];
+
 void* send_node_update_payload(void *tdata)
 {
    
