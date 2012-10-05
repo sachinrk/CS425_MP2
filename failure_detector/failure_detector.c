@@ -57,10 +57,13 @@ int node_init() {
 		//}
 	}
 	
-	if (current_state == INIT) {
-		current_state = TOPOLOGY_FORMED;
+	if (current_state == INIT && rc == RC_SUCCESS) {
+	       //pthread_mutex_lock(&state_machine_mutex);	
+               current_state = TOPOLOGY_FORMED;
+               //pthread_mutex_unlock(&state_machine_mutex);
 	} else {
 		LOG(ERROR, "State is other than INIT. Can't be%s\n", "");
+                return RC_FAILURE;
 	}
 
 	return RC_SUCCESS;
