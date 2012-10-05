@@ -21,10 +21,10 @@ void main()/*interact_with_user()*/
                strcpy(display_buf,"\n1. Send Membership Join Request\n");
                case1function = node_init;
                break;
-           case JOIN_REQUEST_SENT:
+           /*case JOIN_REQUEST_SENT:
                strcpy(buf, "Join request sent to admission contact");
                break;
-           /*case TOPOLOGY_FORMED:
+           case TOPOLOGY_FORMED:
                strcpy(buf, "Membership List Received. Updating other nodes");
                break;
            */
@@ -53,7 +53,7 @@ void main()/*interact_with_user()*/
                        break;
                    case 2:
                         if (current_state == INIT) {
-                             printf("\nOperation invalid in this state\n")
+                             printf("\nOperation invalid in this state\n");
                         } else {
                             display_membership_list();
                         }
@@ -73,3 +73,20 @@ void main()/*interact_with_user()*/
        system("clear"); 
     }while((choice-'0') != 3);
 }
+
+
+void display_membership_list()
+{
+     clear();
+     struct Node *tmp;
+     printf("\nNode IP Address\t Node Timestamp\n*****************************************************************\n");
+     pthread_mutex_lock(&node_list_mutex);    
+     for (tmp = server_topology->node; tmp && tmp->next != server_topology->node; tmp++) {
+         printf("%s\t%lu\n", tmp->IP, tmp->timestamp);
+     }
+     pthread_mutex_unlock(&node_list_mutex); 
+     printf("\nPlease press any key to continue ...\n");
+     getch(); 
+}
+
+

@@ -124,12 +124,11 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
         }
         timestamp = htonl(payload->timestamp);
         memcpy(buf + offset, &timestamp, sizeof(timestamp));
-        memcpy(buf + offset + 4 , payload->ipAddr, 16);
+        memcpy(buf + offset + sizeof(timestamp) , payload->ipAddr, 16);
         offset += 20;
-        //memcpy(ID, payload->ipAddr, 15);
         timestamp = htonl(payload->timestamp);  
         memcpy(ID, &(timestamp), sizeof(timestamp)); 
-        memcpy(getIPAddress(ID), payload->ipAddr, 16);
+        memcpy(ID + sizeof(timestamp), payload->ipAddr, 16);
         add_to_list(&server_topology, ID); 
         //strcpy(buf + offset, tmp->IP);
         //server_topology->num_of_nodes++; 
@@ -219,7 +218,7 @@ void sendTopologyResponse(int socket, int numOfNodes, char *buf)
 void sendTopologyJoinRequest(int socket)
 {
     int size = (sizeof(topologyRequestPayload) + 16);
-    long time_t t;
+    time_t t;
     long timestamp = time(&t);
     topologyRequestPayload *payloadBuf = 
                         calloc(1,sizeof(topologyRequestPayload));
@@ -306,7 +305,7 @@ void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[ID_SI
         for (i=0; i<5 && index < numOfNodesToSend; i++, index ++, threads_created++) {
             //my_data[i].ip[15] = 0;
             my_data[i] = calloc(1,sizeof(thread_data) + ID_SIZE);
-            (*my_data[i]).payload = calloc(1,sizeof(ID));  
+            (*my_data[i]).payload = calloc(1, sizeof(ID));  
             memcpy((*my_data[i]).ip, IP, 16);
             IP++;
             (*my_data[i]).payload_size = sizeof(addDeleteNodePayload) + ID_SIZE;  

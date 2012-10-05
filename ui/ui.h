@@ -5,10 +5,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include "../commons/message_type.h"
+#include "../commons/list.h"
 typedef enum {
     INIT,
     JOIN_REQUEST_SENT,
     TOPOLOGY_FORMED,
     TOPOLOGY_FORMED_NEIGHBOURS_UPDATED,
 }state_machine;
+
+
+void display_membership_list();
+
 #endif

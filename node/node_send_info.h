@@ -4,7 +4,7 @@
 #include "../commons/message_type.h"
 #include <stdlib.h>
 #include <string.h>
-
+#include "../failure_detector/failure_detector.h"
 typedef struct {
     char ip[16];
     int payload_size;

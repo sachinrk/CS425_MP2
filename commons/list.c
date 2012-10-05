@@ -3,7 +3,7 @@
 struct Head_Node * init_head(struct Node* node) {
 	struct Head_Node * tmp = NULL;
 	
-	tmp = (struct Head_Node*)my_malloc(sizeof(struct Head_Node));
+	tmp = (struct Head_Node*)calloc(1, sizeof(struct Head_Node));
 	if(tmp != NULL)
 		tmp->node = node;
 	
@@ -13,11 +13,10 @@ struct Head_Node * init_head(struct Node* node) {
 struct Node* init_node(char ID[ID_SIZE]) {
 	struct Node * tmp = NULL;
 	
-	tmp = (struct Node*) my_malloc ( sizeof(struct Node));
+	tmp = (struct Node*) calloc (1, sizeof(struct Node));
 	if(tmp != NULL) {
-		memcpy(tmp->timestamp, ID, 4);
+		memcpy(&tmp->timestamp, ID, 4);
                 tmp->IP[15] = 0;
-                memcpy(tmp->timestamp, getIpAddres(ID), 4);
                 tmp->timestamp = ntohl(tmp->timestamp);  
 		tmp->next = tmp;
 		tmp->prev = tmp;	
@@ -62,7 +61,7 @@ int remove_from_list(struct Head_Node **head, char ID[ID_SIZE]) {
 		
 		tmp = (*head)->node;
 		do {
-			if(!strcmp(tmp->IP, IP)) { //Match found	
+			if(!memcmp(tmp->IP, ID+4, 16)) { //Match found	
 				found = 1;
 				break;
 			}
@@ -100,7 +99,7 @@ int remove_from_list(struct Head_Node **head, char ID[ID_SIZE]) {
 RC_t delete_all_nodes(struct Head_Node **head)
 {
      struct Node *tmp = (*head)->node;
-     struct tmp1;
+     struct Node *tmp1;
      while(tmp && tmp != (*head)->node) {
          tmp1 = tmp->next;
          free(tmp);

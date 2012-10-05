@@ -4,7 +4,7 @@
 #include "debug.h"
 #include <stdlib.h>
 #include <string.h>
-
+#include "message_type.h"
 #define NUM_HEARTBEAT_NEIGHBOURS 2
 
 struct Node {
