@@ -5,13 +5,14 @@ extern struct Node* myself;
 
 void* topology_update(void* t) {
 
-	int listenSocket, connectSocket, socketFlags, ret, clientSize;
+	int listenSocket, connectSocket, socketFlags, ret;
+	socklen_t clientSize;
 	struct sockaddr_in myAddress, clientAddress;
 	int i,j, bytes, numBytes, pid;
 	
 	payloadBuf *packet;
 	int rc;
-	
+	clientSize = sizeof(clientAddress);
 
 	//Create a listening socket..
 	if((listenSocket = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
@@ -22,7 +23,7 @@ void* topology_update(void* t) {
 	//Init the sockaddr structure..
 	memset(&myAddress, 0, sizeof(myAddress));
 	myAddress.sin_family	  = AF_INET;
-	myAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+	myAddress.sin_addr.s_addr = INADDR_ANY;
 	myAddress.sin_port	  = htons(LISTEN_THREAD_PORT);
 	
 	//Now bind the socket..
