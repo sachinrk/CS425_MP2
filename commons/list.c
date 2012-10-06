@@ -28,8 +28,9 @@ struct Node* init_node(char ID[ID_SIZE]) {
 
 int add_to_list(struct Head_Node ** head, char ID[ID_SIZE]) {	
 	struct Node * tmp;
-	
+	int i = 0;
 	tmp = init_node(ID);
+        long timestamp;  
         printf("\nIn adding before, head : %lu\n", (long)(*head));
         //getchar();
         if ( *head == NULL ) {
@@ -45,7 +46,13 @@ int add_to_list(struct Head_Node ** head, char ID[ID_SIZE]) {
 	} else {
                 
                 printf("\nIn adding %lu \n",(long)(*head));
-
+                for (i = 0 , tmp = (*head)->node; i < (*head)->num_of_nodes; i++) {
+                    if (!strncmp(tmp->IP, ID+4, 16)) {
+                        memcpy(&timestamp, ID, 4);
+                        tmp->timestamp = ntohl(timestamp);
+                        return 0;
+                    }
+                }
 		tmp->next = (*head)->node;
 		tmp->prev = (*head)->node->prev;
 		(*head)->node->prev->next = tmp;
