@@ -211,6 +211,7 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
     //printf("\n7-> %d\n",  server_topology->num_of_nodes );
     pthread_mutex_unlock(&node_list_mutex);
     //printf("\n8......2-> %d\n",  server_topology->num_of_nodes );
+    printf("\n\nSending %s *********************\n\n",buf+4);
     sendTopologyResponse(socket, (server_topology ? server_topology->num_of_nodes : 0), buf);  
     if (payload->flags & ADD_NODE_REQUEST) {
         printf("\n7 Nodes : %d\n", server_topology->num_of_nodes);

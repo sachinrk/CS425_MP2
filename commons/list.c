@@ -12,7 +12,7 @@ struct Head_Node * init_head(struct Node* node) {
 
 struct Node* init_node(char ID[ID_SIZE]) {
 	struct Node * tmp = NULL;
-	
+
 	tmp = (struct Node*) calloc (1, sizeof(struct Node));
 	if(tmp != NULL) {
 		memcpy(&tmp->timestamp, ID, 4);
