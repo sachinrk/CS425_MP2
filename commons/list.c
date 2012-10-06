@@ -31,7 +31,7 @@ int add_to_list(struct Head_Node ** head, char ID[ID_SIZE]) {
 	
 	tmp = init_node(ID);
         printf("\nIn adding before, head : %lu\n", (long)(*head));
-        getchar();
+        //getchar();
         if ( *head == NULL ) {
 	        
 	       printf("\nIn adding 1\n");

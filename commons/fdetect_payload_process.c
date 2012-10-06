@@ -26,11 +26,11 @@ void processHeartbeatPayload(heartbeatPayload *payload)
     int i; 
     pthread_mutex_lock(&timestamp_mutex);
     for (i = 0; i < NUM_HEARTBEAT_NEIGHBOURS; i++) {
-              printf("Heartbeat Received Outside\n");
+              //printf("Heartbeat Received Outside\n");
               //LOG(INFO,"Received heartbeat from %s", payload->ip_addr); 
               if (!(strcmp(savedHeartbeat[i].ipAddr, payload->ip_addr))) {
                   time(&savedHeartbeat[i].latestTimeStamp);
-		  printf("Heartbeat Received from %s\n", payload->ip_addr);
+		 // printf("Heartbeat Received from %s\n", payload->ip_addr);
               }
     }
     pthread_mutex_unlock(&timestamp_mutex); 
@@ -54,9 +54,20 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
     char IP[16];
     pthread_t thread;
     pthread_mutex_lock(&node_list_mutex);   
+    printf("\n********--------------------In AddDeletePayload-----------------------------************\n");
+
+    for(i=0;i<sizeof(*payload);i++) {	
+    	printf("%0x,", *(payload + i));
+    }
+    
+    getchar();
+
     if ((payload->flags & ADD_PAYLOAD) && (payload->flags & COMPLETE_PAYLOAD)) {
         delete_all_nodes(&server_topology);
     }
+  
+	   
+
     for (i = 0; i < payload->numOfNodes; i++) {
        if (payload->flags & DELETE_PAYLOAD) {
            remove_from_list(&server_topology, payload->ID[i]);

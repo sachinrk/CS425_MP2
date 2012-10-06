@@ -43,7 +43,7 @@ void* heartbeat_receive(void* t) {
 	
 	if (bind(recvFromSocket , (struct sockaddr *)&myAddr, sizeof(myAddr)) == -1 ) {
              printf("\n Failed to  bind socket for receiving heartbeat . Exiting....\n Press any key to continue  \n");
-             getchar();
+             //getchar();
              pthread_mutex_lock(&state_machine_mutex);
              current_state = INIT;
              pthread_mutex_unlock(&state_machine_mutex);
@@ -56,22 +56,22 @@ void* heartbeat_receive(void* t) {
 		//I may have to start receiving from a new node because... 
 		//1) it was just added to the topology as my predecessor
 		//2) my predecessor went down and is not communicating. 
-	        printf ("\n\nIn hearbeat here \n\n");	
+	        //printf ("\n\nIn hearbeat here \n\n");	
 		
 		//We can use the poll() function here. Nice thing about it is, it will wake up 
 		//either when a heartbeat arrives or when a timeout has occurred. Exactly what we need here. 
 		
 		rv = poll(pollfds, 1, 2000);
-		printf("Awake from POLL rv = %d, %lu \n", rv, pollfds[0].revents);
+		//printf("Awake from POLL rv = %d, %lu \n", rv, pollfds[0].revents);
 		heartbeatNotReceived = 0;
 	
 		if(rv == 0) { //timeout has occurred. I did not receive 5 consecutive heartbeats from my recvfrom node.
 			heartbeatNotReceived = 1;
 		} else if (pollfds[0].revents & (POLLIN | POLLPRI)){ //Something received. Check if it is heartbeat.
-		 printf("\n\nInside Poll\n\n");	
+		 //printf("\n\nInside Poll\n\n");	
 			packet = (payloadBuf*)malloc(1000);
                         if(RC_SUCCESS == message_decode_UDP(recvFromSocket, packet, &packetLen, &recvFromAddr, &recvFromAddrLen)) {
-			    printf("\n\n CAlling message decode\n");	
+			    //printf("\n\n CAlling message decode\n");	
                             processPacket(recvFromSocket, packet);
 			}
 			

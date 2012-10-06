@@ -44,7 +44,7 @@ void* topology_update(void* t) {
 			return 0;
 		} 
 		
-		printf("\nClient %d.%d.%d.%d connected\n", 
+		printf("\n**********************************Client %d.%d.%d.%d connected******************************************\n", 
 				(clientAddress.sin_addr.s_addr & 0xFF),  
 				(clientAddress.sin_addr.s_addr & 0xFF00) >> 8,  
 				(clientAddress.sin_addr.s_addr & 0xFF0000) >> 16,  
@@ -54,6 +54,16 @@ void* topology_update(void* t) {
 		//A client has connected. 
 		//It will send me updates regarding the topology - either someone has joined or someone has left	
 		rc = message_decode(connectSocket, &packet);
+		printf("\n\nDid I succeed?  rc = %d\n\n", rc);
+
+		for(i = 0; i < packet->length; i++) {
+			printf("   ****  %d, ", *(packet + i));
+		}	
+		getchar();
+		getchar();
+		getchar();
+		getchar();
+		
 		processPacket(connectSocket,packet);
 		close(connectSocket);	
 	}

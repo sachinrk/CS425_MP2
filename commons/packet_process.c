@@ -28,7 +28,7 @@ void processPacket(int socket, payloadBuf *packet) {
   	
 	packetLength = packet->length;
 	packetType = packet->type;
-        DEBUG(("\nIn processpacket. Packet type : %0x\n", packetType));			
+        //DEBUG(("\nIn processpacket. Packet type : %0x\n", packetType));			
 	perform_marshalling(packetType, packet->payload);
         switch(packetType) {
 		case MSG_HEARTBEAT :
@@ -36,8 +36,9 @@ void processPacket(int socket, payloadBuf *packet) {
                      break;
 		
 		case MSG_ADD_DELETE_NODE:
-                     topology_version++;
+		     printf("\n************processPacket***************\n");
                      processNodeAddDeletePayload(packet->payload, packet->length);
+                     topology_version++;
                      break;
                 case MSG_TOPOLOGY_REQUEST:
                      processTopologyRequest(socket, packet->payload);
@@ -119,8 +120,9 @@ void processPacket(int socket, payloadBuf *packet) {
 			
 		     close(socket);	
  		     break;
-                		
+        	default	:
+			printf("\nIn process packet.. but unknown type\n");
 	}
-	DEBUG(("*** Freeing memory \n\n"));
+	//DEBUG(("*** Freeing memory \n\n"));
         free(packet_ptr); // Freeing
 }

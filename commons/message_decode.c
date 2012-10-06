@@ -29,7 +29,7 @@ int message_decode(int socket, payloadBuf **packet) {
     printf("\nAfter while loop\n");
     length = ntohs(length);                               // Get the length of the packet
     printf("Length = %d", length);
-    getchar();
+    //getchar();
     size = length - sizeof(length);
     *packet = (payloadBuf *)calloc(1, length);
     (*packet)->length = length;
@@ -48,7 +48,8 @@ int message_decode(int socket, payloadBuf **packet) {
     DEBUG(("\nPacket type = %d\n", (*packet)->type));
     int i;
     for (i=0; i<length; i++ ) {
-    DEBUG(("%d,",(*((char*)(*packet) +i))));
+    //DEBUG(("%d,",(*((char*)(*packet) +i))));
+    DEBUG(("%0x,",*(packet + i)));
     }
     return RC_SUCCESS;
 }
@@ -59,7 +60,7 @@ int message_decode_UDP(int socket, payloadBuf *packet, int *packetLen, struct so
     *packetLen = recvfrom(socket, packet, 1000, 0, (struct sockaddr * )fromAddr, fromAddrLen); 
     packet->length = ntohs(packet->length);
     packet->type = ntohs(packet->type);
-    printf("\n In message decode  length = %d \n", packet->length);
+    //printf("\n In message decode  length = %d \n", packet->length);
 
     return RC_SUCCESS;
 }
