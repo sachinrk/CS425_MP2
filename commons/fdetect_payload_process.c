@@ -85,8 +85,13 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
     
     if(myself != NULL) {
         memcpy(IP, myself->next->IP, 16); 
-    }
+        pthread_mutex_lock(&timestamp_mutex);
+        strcpy(savedHeartbeat[0].ipAddr, myself->prev->IP); 
+        pthread_mutex_unlock(&timestamp_mutex);
 
+
+     }
+           
     pthread_mutex_unlock(&node_list_mutex); 
     if (payload->ttl > 0 && server_topology->num_of_nodes > 0) {
         payload->ttl--;
