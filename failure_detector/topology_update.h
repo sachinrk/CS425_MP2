@@ -9,8 +9,7 @@
 #include "../commons/list.h"
 #include "../logging/log.h"
 #include "../commons/message_type.h"
-
-#define LISTEN_THREAD_PORT 1104
+#include "failure_detector.h"
 
 void* topology_update(void*);
 
