@@ -30,7 +30,7 @@ void processHeartbeatPayload(heartbeatPayload *payload)
               //LOG(INFO,"Received heartbeat from %s", payload->ip_addr); 
               if (!(strcmp(savedHeartbeat[i].ipAddr, payload->ip_addr))) {
                   time(&savedHeartbeat[i].latestTimeStamp);
-		  printf("Heartbeat Received\n");
+		  printf("Heartbeat Received from %s\n", payload->ip_addr);
               }
     }
     pthread_mutex_unlock(&timestamp_mutex); 
@@ -152,7 +152,7 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
         printf("\n\nLooping through : %s , searching for :%s", tmp->IP, payload->ipAddr);
         if (!memcmp(payload->ipAddr, tmp->IP, 15)) {
             found = tmp;
-            printf("\n3: Found ***********, IP :",payload->ipAddr);
+            printf("\n3: Found ***********, IP : %s",payload->ipAddr);
      
             
         }
@@ -163,7 +163,7 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
         timestamp = htonl(payload->timestamp);
         memcpy(buf + offset, &timestamp, 4);
         memcpy(buf+offset+4, (tmp->IP), 16);
-        offset += 20;
+        offset += ID_SIZE;
     }
     printf("\n4\n");
     if (payload->flags & ADD_NODE_REQUEST) {
@@ -344,19 +344,20 @@ void sendAddNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[ID_SIZE]
 	    
  	    printf("Num nodes to send = %d", numOfNodesToSend);
             //my_data[i].ip[15] = 0;
-            my_data[i] = calloc(1,sizeof(thread_data) + ID_SIZE);
-            (*my_data[i]).payload = calloc(1,sizeof(ID));
+            my_data[i] = calloc(1, sizeof(thread_data) + sizeof(addDeleteNodePayload) + ID_SIZE);
+            (*my_data[i]).payload = calloc(1, sizeof(addDeleteNodePayload) + ID_SIZE);
             memcpy((*my_data[i]).ip, IP, 16);
             IP++;
             (*my_data[i]).payload_size = sizeof(addDeleteNodePayload) + ID_SIZE;  
             (*my_data[i]).msg_type = MSG_ADD_DELETE_NODE;
-            memcpy((*my_data[i]).payload, ID, ID_SIZE);
+            memcpy((*my_data[i]).payload, payloadBuf, sizeof(addDeleteNodePayload) + ID_SIZE);
             pthread_create(&thread[i], NULL, send_node_update_payload, (my_data[i])); 
         }
         for (i=0 ; i < threads_created; i++) {
             pthread_join(thread[i],NULL);
         } 
     }
+    free(payloadBuf);
 }
 
 

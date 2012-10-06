@@ -91,10 +91,11 @@ int remove_from_list(struct Head_Node **head, char ID[ID_SIZE]) {
 		if(tmp == (*head)->node) 
 			(*head)->node = NULL;
                 (*head)->num_of_nodes--;
-		*head = NULL;
+		free(*head);
+                *head = NULL;
                 free(tmp);
 
-		DEBUG(("Remove_from_listNode successfully removed."));
+		DEBUG(("Remove_from_list : Node successfully removed."));
 		return 0;
 	}
 }
