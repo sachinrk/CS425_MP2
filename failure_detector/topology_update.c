@@ -24,7 +24,7 @@ void* topology_update(void* t) {
 	memset(&myAddress, 0, sizeof(myAddress));
 	myAddress.sin_family	  = AF_INET;
 	myAddress.sin_addr.s_addr = INADDR_ANY;
-	myAddress.sin_port	  = htons(LISTEN_THREAD_PORT);
+	myAddress.sin_port	  = htons(TCP_LISTEN_PORT);
 	
 	//Now bind the socket..
 	if((bind(listenSocket, (struct sockaddr *)&myAddress, sizeof(myAddress))) < 0) {

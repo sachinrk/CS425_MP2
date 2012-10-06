@@ -20,7 +20,7 @@ void* send_node_update_payload(void *tdata)
         nodeAddress.sin_addr.s_addr   = inet_addr(IP);
         nodeAddress.sin_port          = htons(TCP_LISTEN_PORT);
 
-        if((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+        if((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
                 //LOG(ERROR, "IP : %s Unable to create TCP Socket. Dying...\n", IP);
                 printf("IP : %s Unable to create TCP Socket. Dying...\n", IP);
                 free(my_data->payload);
