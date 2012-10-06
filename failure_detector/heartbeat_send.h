@@ -11,5 +11,6 @@
 #include "../logging/log.h"
 #include <time.h>
 #include "heartbeat_receive.h"
+#include "../commons/fdetect_payload_process.h"
 void* heartbeat_send(void* t);
 #endif 
