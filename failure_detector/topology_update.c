@@ -39,6 +39,7 @@ void* topology_update(void* t) {
 	}
 	
 	for(;;) {
+		pthread_testcancel();
 		if ((connectSocket = accept(listenSocket, (struct sockaddr*)&clientAddress, &clientSize)) < 0) {
 			printf("Error accepting connection. Dying...\n");
 			return 0;

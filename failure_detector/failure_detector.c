@@ -78,9 +78,9 @@ int sendDeleteNotification(uint8_t reason, char nodeID[20], int ttl) {
 	int i,j;
 	struct Node* nodePtr;
 		
-	numNodesToSend = server_topology->num_of_nodes / ttl;
 	sendDeleteNodePayload(ADMISSION_CONTACT_IP, 1, nodeID, 1, reason);
 
+	numNodesToSend = server_topology->num_of_nodes / ttl;
 	if (numNodesToSend >= 1) {
 		IPList = (char*)malloc(numNodesToSend * 16);
 		memset(IPList, 0, numNodesToSend * 16);
@@ -98,6 +98,43 @@ int sendDeleteNotification(uint8_t reason, char nodeID[20], int ttl) {
 
 	
 }
+
+RC_t node_exit() {
+	char myID[20];
+	long timestamp;
+	int ttl = 4;
+		
+	if((pthread_cancel(receive_thread)) == 0) {
+		printf("\nReceive thread cancelled\n");
+		
+		pthread_mutex_lock(&node_list_mutex);
+		timestamp = htonl(myself->prev->timestamp);
+		memcpy(myID, &timestamp, 4);
+		memcpy(myID + 4, myself->prev->IP, 16);
+		pthread_mutex_unlock(&node_list_mutex);
+		
+		sendDeleteNotification(LEAVE_NOTIFICATION, myID, ttl);
+		
+		if((pthread_cancel(send_thread)) != 0) {
+			printf("\nSend thread cancelled\n");
+			
+		} else {
+			printf("\nCould not cancel send thread\n");
+			return RC_FAILURE;
+		}
+		if((pthread_cancel(listen_thread)) != 0) {
+			printf("\nSend thread cancelled\n");
+			return RC_FAILURE;
+		}
+	} else {
+		printf("\nCould not cancel receive thread\n");
+		return RC_FAILURE;
+	}
+	
+	printf("\nDeleted all threads\n");
+	return RC_SUCCESS;
+}
+
 
 /*
 int getMyIPAddrs(char myIPs[10][16]) {
@@ -141,8 +178,3 @@ int getMyIPAddrs(char myIPs[10][16]) {
 	return ifs;
 }
 */
-
-int node_exit() {
-
-}
-

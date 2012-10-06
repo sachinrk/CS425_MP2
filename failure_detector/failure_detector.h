@@ -26,6 +26,6 @@
 #define TCP_LISTEN_PORT 1800
 
 int node_init();
-int node_exit(); 
+RC_t node_exit(); 
 
 #endif

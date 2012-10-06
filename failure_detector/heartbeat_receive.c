@@ -62,7 +62,7 @@ void* heartbeat_receive(void* t) {
 		
 		//We can use the poll() function here. Nice thing about it is, it will wake up 
 		//either when a heartbeat arrives or when a timeout has occurred. Exactly what we need here. 
-		
+		pthread_testcancel();	
 		rv = poll(pollfds, 1, 3000);
 		//printf("Awake from POLL rv = %d, %lu \n", rv, pollfds[0].revents);
 		heartbeatNotReceived = 0;
