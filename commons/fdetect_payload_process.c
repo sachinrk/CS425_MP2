@@ -133,6 +133,7 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
     int numNodestoSend = 0;
     long timestamp =0;
     int visit = 0;
+    int nodeDelete = 0;
     
     pthread_mutex_lock(&node_list_mutex);
     printf("\n1\n");
@@ -172,22 +173,24 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
         }
         timestamp = htonl(payload->timestamp);
         memcpy(buf + offset, &timestamp, 4);
+        printf("\n Invalid write of 4 bytes\n");
         memcpy(buf+offset+4, (tmp->IP), 16);
         offset += ID_SIZE;
     }
     printf("\n4\n");
     if (payload->flags & ADD_NODE_REQUEST) {
-        if (found) {
+        /*if (found) {
             timestamp = htonl(tmp->timestamp);
             memcpy(ID, &timestamp, sizeof(tmp->timestamp));
             memcpy(ID + sizeof(tmp->timestamp) , tmp->IP, 16);
             remove_from_list(&server_topology, ID);
+            nodeDelete = 1;
             //LOG(ERROR, " Reincarnation of node %s ", payload->ipAddr);
             //return;
-        }
+        }*/
         timestamp = ntohl(payload->timestamp);
         printf("\n5\n");
-	if(server_topology == NULL || server_topology->num_of_nodes == 0) {
+	if( (server_topology == NULL || server_topology->num_of_nodes == 0)) {
 	    printf("\n Allocated memory*************************\n");
             buf = (char*)calloc(1, ID_SIZE);
         }
