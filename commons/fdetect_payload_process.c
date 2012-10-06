@@ -71,10 +71,6 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
     for (i = 0; i < payload->numOfNodes; i++) {
        if (payload->flags & DELETE_PAYLOAD) {
            remove_from_list(&server_topology, payload->ID[i]);
-           pthread_mutex_lock(&timestamp_mutex);
-           strcpy(savedHeartbeat[0].ipAddr, myself->prev->IP); 
-           pthread_mutex_unlock(&timestamp_mutex);
-
   
           if (payload->flags & LEAVE_NOTIFICATION) {
               //LOG(INFO, "Node %s is voluntarily leaving the group", payload->ID[i]);
@@ -99,9 +95,7 @@ void processNodeAddDeletePayload(addDeleteNodePayload *payload, int payload_size
         pthread_mutex_lock(&timestamp_mutex);
         strcpy(savedHeartbeat[0].ipAddr, myself->prev->IP); 
         pthread_mutex_unlock(&timestamp_mutex);
-
-
-     }
+    }
            
     pthread_mutex_unlock(&node_list_mutex); 
     if (payload->ttl > 0 && server_topology->num_of_nodes > 0) {
@@ -397,6 +391,44 @@ void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[ID_SI
     pthread_t   thread[5];
     int threads_created = 0;
     addDeleteNodePayload *payloadBuf = calloc(1,sizeof(addDeleteNodePayload) + ID_SIZE);  
+    printf("\nIn here \n");
+    payloadBuf->numOfNodes = 1;
+    payloadBuf->flags |= (DELETE_PAYLOAD | DELTA_PAYLOAD | flags);
+    payloadBuf->ttl = ttl;
+    memcpy(payloadBuf->ID, ID, ID_SIZE);
+    //payloadBuf->ID[0][47] = 0;
+    while(index < numOfNodesToSend ) {
+        threads_created = 0;
+        for (i=0; i<5 && index < numOfNodesToSend; i++, index ++, threads_created++) {
+	    
+ 	    printf("Num nodes to send = %d", numOfNodesToSend);
+            //my_data[i].ip[15] = 0;
+            my_data[i] = calloc(1, sizeof(thread_data) + sizeof(addDeleteNodePayload) + ID_SIZE);
+            (*my_data[i]).payload = calloc(1, sizeof(addDeleteNodePayload) + ID_SIZE);
+            memcpy((*my_data[i]).ip, IP, 16);
+            IP++;
+            (*my_data[i]).payload_size = sizeof(addDeleteNodePayload) + ID_SIZE;  
+            (*my_data[i]).msg_type = MSG_ADD_DELETE_NODE;
+            memcpy((*my_data[i]).payload, payloadBuf, sizeof(addDeleteNodePayload) + ID_SIZE);
+            pthread_create(&thread[i], NULL, send_node_update_payload, (my_data[i])); 
+        }
+        for (i=0 ; i < threads_created; i++) {
+            pthread_join(thread[i],NULL);
+        } 
+    }
+    free(payloadBuf);
+
+
+
+
+    /*char (*IP)[16];
+    IP = ipAddrList;
+    int index = 0;
+    int i;
+    thread_data *my_data[5];
+    pthread_t   thread[5];
+    int threads_created = 0;
+    addDeleteNodePayload *payloadBuf = calloc(1,sizeof(addDeleteNodePayload) + ID_SIZE);  
     payloadBuf->numOfNodes = 1;
     payloadBuf->flags |= (DELETE_PAYLOAD | DELTA_PAYLOAD);
     payloadBuf->flags |= flags;
@@ -419,5 +451,5 @@ void sendDeleteNodePayload(char *ipAddrList, int numOfNodesToSend, char ID[ID_SI
         for (i=0 ; i < threads_created; i++) {
             pthread_join(thread[i],NULL);
         } 
-    }
+    }*/
 }

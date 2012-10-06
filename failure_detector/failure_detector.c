@@ -79,7 +79,8 @@ int sendDeleteNotification(uint8_t reason, char nodeID[20], int ttl) {
 	struct Node* nodePtr;
 		
 	numNodesToSend = server_topology->num_of_nodes / ttl;
-		
+	sendDeleteNodePayload(ADMISSION_CONTACT_IP, 1, nodeID, 1, reason);
+
 	if (numNodesToSend >= 1) {
 		IPList = (char*)malloc(numNodesToSend * 16);
 		memset(IPList, 0, numNodesToSend * 16);
@@ -95,8 +96,7 @@ int sendDeleteNotification(uint8_t reason, char nodeID[20], int ttl) {
 		sendDeleteNodePayload(IPList,numNodesToSend, nodeID, ttl, reason);
 	}
 
-	sendDeleteNodePayload(ADMISSION_CONTACT_IP, 1, nodeID, 1, reason);
-
+	
 }
 
 /*

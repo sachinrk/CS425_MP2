@@ -87,14 +87,16 @@ void* heartbeat_receive(void* t) {
 		}
 		
 		if(heartbeatNotReceived ) {
-
-		        sendDeleteNotification(NODE_FAILURE, recvFromNodeID, ttl);
-			pthread_mutex_lock(&node_list_mutex); 
+                         
+                        pthread_mutex_lock(&node_list_mutex); 
 			//timestamp = myself->prev->timestamp;
                         timestamp = htonl(myself->prev->timestamp);
+                        pthread_mutex_unlock(&node_list_mutex);
                         memcpy(ID, &timestamp, 4);
                         memcpy(ID + 4, myself->prev->IP, 16);  
-                         
+                           
+		        sendDeleteNotification(NODE_FAILURE, ID, ttl);
+		        pthread_mutex_lock(&node_list_mutex);	
                         remove_from_list(&server_topology, ID);
 			pthread_mutex_unlock(&node_list_mutex); 
                         pthread_mutex_lock(&timestamp_mutex);
