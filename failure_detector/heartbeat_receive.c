@@ -17,7 +17,8 @@ void* heartbeat_receive(void* t) {
 	//If I don't get what I want, I am supposed to tell everyone
 	
 	int my_version = 0;
-	struct Node* recvFromNode = NULL;
+	int startup = 1;
+        struct Node* recvFromNode = NULL;
 	struct Node* nodePtr;
 	int recvFromSocket;
 	struct sockaddr_in recvFromAddr, myAddr;
@@ -33,7 +34,8 @@ void* heartbeat_receive(void* t) {
 			
 	char *IPList, *ptr;
 	int numNodesToSend, i, j;
-		
+        char ID[ID_SIZE];
+        long timestamp =0;		
 
 	recvFromSocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);		
 	memset(&recvFromAddr, 0, sizeof(recvFromAddr));
@@ -61,7 +63,7 @@ void* heartbeat_receive(void* t) {
 		//We can use the poll() function here. Nice thing about it is, it will wake up 
 		//either when a heartbeat arrives or when a timeout has occurred. Exactly what we need here. 
 		
-		rv = poll(pollfds, 1, 2000);
+		rv = poll(pollfds, 1, 3000);
 		//printf("Awake from POLL rv = %d, %lu \n", rv, pollfds[0].revents);
 		heartbeatNotReceived = 0;
 	
@@ -76,17 +78,30 @@ void* heartbeat_receive(void* t) {
 			}
 			
 			pthread_mutex_lock(&timestamp_mutex);
-                        if((time(NULL) - savedHeartbeat[0].latestTimeStamp) > 2) {
+                        printf("Time Difference : %lu", (time(NULL) - savedHeartbeat[0].latestTimeStamp));
+                        if(savedHeartbeat[0].latestTimeStamp !=0 
+                           && (time(NULL) - savedHeartbeat[0].latestTimeStamp) > 2) {
 				heartbeatNotReceived = 1;
 			}
                         pthread_mutex_unlock(&timestamp_mutex);	
 		}
 		
-		if(heartbeatNotReceived) {
-		/*	sendDeleteNotification(NODE_FAILURE, recvFromNodeID, ttl);	
-			pthread_mutex_lock(&node_list_mutex);
-			remove_from_list(&server_topology, recvFromNode->IP);
-			pthread_mutex_unlock(&node_list_mutex); */
+		if(heartbeatNotReceived ) {
+
+		        sendDeleteNotification(NODE_FAILURE, recvFromNodeID, ttl);
+			pthread_mutex_lock(&node_list_mutex); 
+			//timestamp = myself->prev->timestamp;
+                        timestamp = htonl(myself->prev->timestamp);
+                        memcpy(ID, &timestamp, 4);
+                        memcpy(ID + 4, myself->prev->IP, 16);  
+                         
+                        remove_from_list(&server_topology, ID);
+			pthread_mutex_unlock(&node_list_mutex); 
+                        pthread_mutex_lock(&timestamp_mutex);
+                        strcpy(savedHeartbeat[0].ipAddr, myself->prev->IP); 
+                        pthread_mutex_unlock(&timestamp_mutex);
+
+
 		}
 	}
 }

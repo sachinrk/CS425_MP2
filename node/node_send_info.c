@@ -13,7 +13,9 @@ void* send_node_update_payload(void *tdata)
         int retryCount = -1;
         int size = my_data->payload_size;
         int msg_type = my_data->msg_type;
- 
+        printf("\nMessage Type = %0x\n", msg_type);
+        int i = 0;
+
         char *payload = my_data->payload;
         memset(&nodeAddress, 0, sizeof(nodeAddress));
         nodeAddress.sin_family        = AF_INET;
@@ -36,6 +38,14 @@ void* send_node_update_payload(void *tdata)
         }
         DEBUG(("IP :  %s  Connection Established\n\n", IP));
         //We are now connected. Let the send receive begin...
+        printf("\nSending Payload to  %s\n", IP);
+        for ( i =0 ; i< size;i++) {
+            printf("%0x ",payload[i] );
+        }
+        
+        //getchar();
+
+ 
         sendPayload(sock, msg_type, payload, size);
         free(my_data->payload);
         free(my_data);
