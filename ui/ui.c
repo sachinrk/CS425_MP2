@@ -14,7 +14,8 @@ void main()/*interact_with_user()*/
     char dislay_buf2[300];
     char user_input[10]; 
     int (*case1function)(void);    
-    
+    int test = 0;
+ 
     log_init();
     //pthread_mutex_t node_list_mutex = PTHREAD_MUTEX_INITIALIZER;
     //timestamp_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -50,8 +51,9 @@ void main()/*interact_with_user()*/
        do {
            printf("\nEnter choice : "); 
            user_input[0] = 0;
-           gets(user_input);
-           choice = user_input[0];
+	   gets(user_input); test = 1;
+           
+	   choice = user_input[0];
            //printf("\nUser Input : %0x\n", choice);
            valid = 1;
            switch(choice - '0') {
@@ -82,7 +84,9 @@ void main()/*interact_with_user()*/
        }while(valid == 0);
        //getchar();
        system("clear"); 
-    }while((choice-'0') != 3);
+    //}while((choice-'0') != 3);
+    }while(0); 
+    while(1);
 }
 
 
