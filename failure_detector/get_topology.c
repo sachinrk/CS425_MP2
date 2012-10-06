@@ -30,7 +30,7 @@ RC_t get_topology() {
 	
 	if((connect(mSocket, (struct sockaddr *)&master, sizeof(master))) < 0) {
 		printf("Unable to connect with the Master. Dying...\nPress any key to continue");
-	        getchar();
+	        //getchar();
                 return RC_FAILURE;
         }
 		

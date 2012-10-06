@@ -97,7 +97,7 @@ void display_membership_list()
      }
      pthread_mutex_unlock(&node_list_mutex); 
      printf("\nPlease press any key to continue ...\n");
-     getchar(); 
+     //getchar(); 
 }
 
 

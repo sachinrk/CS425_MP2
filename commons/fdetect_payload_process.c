@@ -215,7 +215,7 @@ void processTopologyRequest(int socket, topologyRequestPayload *payload)
         free(buf);
     }
     printf("\n8\n");
-    getchar();
+    //getchar();
 }
 
 
@@ -280,7 +280,7 @@ void sendTopologyResponse(int socket, int numOfNodes, char *buf)
      payloadBuf->ttl = 0;          //No need to propogate
      memcpy(payloadBuf->ID, buf, numOfNodes * ID_SIZE);
      printf("\n Sending here 2\n"); 
-     getchar();
+     //getchar();
  
     printf("\n Sending here 3\n"); 
     sendPayload(socket, MSG_ADD_DELETE_NODE, payloadBuf, size);
