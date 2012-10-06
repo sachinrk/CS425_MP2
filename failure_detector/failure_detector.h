@@ -2,7 +2,6 @@
 #define __FAILURE_DETECTOR__
 
 #include <stdio.h>
-#include <stropts.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <linux/netdevice.h>
